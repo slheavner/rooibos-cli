@@ -9,6 +9,8 @@ RooibosC
 </p>
 
 [![Build Status](https://travis-ci.org/georgejecook/rooibosPreprocessor.svg?branch=master)](https://travis-ci.org/georgejecook/rooibosPreprocessor)
+[![codecov](https://codecov.io/gh/georgejecook/rooibosPreprocessor/branch/master/graph/badge.svg)](https://codecov.io/gh/georgejecook/rooibosPreprocessor)
+[![GitHub](https://img.shields.io/github/release/georgejecook/rooibosPreprocessor.svg?style=flat-square)](https://github.com/georgejecook/rooibosPreprocessor/releases) 
 
 # About
 
