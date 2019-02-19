@@ -2,7 +2,7 @@
   <img src="images/logo.png" alt="Rooibos test framework" width="200" height="200"/>
 </p>
 <h3 align="center">
-Simple, mocha-inspired, flexible, fun Brightscript test framework for ROKU apps
+RooibosC
 </h3>
 <p align="center">
   Version 1.0.7
