@@ -30,8 +30,11 @@ export default class FileDescriptor {
   }
 
   public getPackagePath(projectRoot: string) {
-    let pkgPath = `pkg:${this.fullPath.replace(projectRoot, '')}`;
-    return pkgPath.replace('pkg://', 'pkg:/');
+    let pkgPath = `pkg:/${this.fullPath.replace(projectRoot, '')}`;
+    //ugly hack while I find a better way of dealing with the projcet root
+    pkgPath = pkgPath.replace('pkg:///', 'pkg:/').replace('pkg://', 'pkg:/');
+    console.log(`getPackagePath - projectRoot IS ${projectRoot} : ${this.fullPath} >>> ${pkgPath}`);
+    return pkgPath;
   }
 
   public get normalizedFileName() {

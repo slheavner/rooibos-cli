@@ -59,7 +59,7 @@ export class RuntimeConfig {
     fs.readdirSync(directory).forEach((filename) => {
       const fullPath = path.join(directory, filename);
       if (fs.statSync(fullPath).isDirectory()) {
-        this.processPath(fullPath);
+        this.processPath(fullPath, rootPath);
       } else {
         const extension = path.extname(filename).toLowerCase();
         if (extension === '.brs') {
