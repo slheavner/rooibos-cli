@@ -7,8 +7,7 @@ program
   .description('Rooibos Preprocessor');
 
 program
-  .command('process <testsFolder> <rootPath>')
-  .alias('p')
+  .arguments('<testsPath> <rootPath>')
   .description(`
   processes a brightscript SceneGraph project and creates json data structures
   which can be used by the rooibos unit testing framework, or vsCode IDE
