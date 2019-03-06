@@ -13,6 +13,8 @@ const chaiSubset = require('chai-subset');
 chai.use(chaiSubset);
 let sourcePath = path.resolve(__dirname, '../test/stubProjectNoSolos');
 let targetPath = path.resolve(__dirname, '../../build');
+let outputPath = path.resolve(__dirname, '../../build');
+let rootPath = path.resolve(__dirname, '../../build');
 let processor: RooibosProcessor;
 
 function clearFiles() {
@@ -29,7 +31,7 @@ function copyFiles() {
 
 describe('TestCase tests ', function() {
   beforeEach(() => {
-    processor = new RooibosProcessor(targetPath);
+    processor = new RooibosProcessor(targetPath, rootPath, outputPath);
     processor.processFiles();
   });
 

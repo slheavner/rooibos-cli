@@ -37,7 +37,7 @@ describe('TestSuite tests ', function() {
     });
 
     it('processes valid test file', () => {
-      let fileDescriptor = new FileDescriptor(`build/source/tests`, `VideoModuleTests.brs`, `.brs`);
+      let fileDescriptor = new FileDescriptor(`build/source/tests/specs`, `VideoModuleTests.brs`, `.brs`);
       let testSuite = builder.processFile(fileDescriptor);
       expect(testSuite).to.not.be.null;
       expect(testSuite.isValid).to.be.true;

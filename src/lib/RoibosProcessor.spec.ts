@@ -11,7 +11,9 @@ let dircompare = require('dir-compare');
 chai.use(chaiSubset);
 let processor: ProjectProcessor;
 let sourcePath = 'src/test/stubProject';
-let testsPath = 'build/source/tests';
+let testsPath = 'build/source/tests/specs';
+let rootPath = 'build/source';
+let outputPath = 'build/source/tests/framework';
 let targetPath = 'build';
 
 function clearFiles() {
@@ -30,7 +32,7 @@ describe('RooibosProcessor tests', function() {
   beforeEach(() => {
     clearFiles();
     copyFiles();
-    processor = new ProjectProcessor(testsPath);
+    processor = new ProjectProcessor(testsPath, rootPath, outputPath);
   });
 
   describe('Initialization', function() {
