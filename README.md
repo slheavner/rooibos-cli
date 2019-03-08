@@ -5,7 +5,7 @@
 RooibosC
 </h3>
 <p align="center">
-  Version 1.0.7
+  Version 2.0.0
 </p>
 
 [![Build Status](https://travis-ci.org/georgejecook/rooibosPreprocessor.svg?branch=master)](https://travis-ci.org/georgejecook/rooibosPreprocessor)

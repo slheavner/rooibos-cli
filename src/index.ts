@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import RooibosProcessor from './lib/RooibosProcessor';
+import { exists } from 'fs';
 const program = require('commander');
 const pkg = require('../package.json');
 const path = require('path');
@@ -24,7 +25,17 @@ program
   let conf;
 
   if (options.config) {
-    conf = require(path.resolve(process.cwd(), options.config));
+    try {
+      conf = require(path.resolve(process.cwd(), options.config));
+    } catch (e) {
+      console.log(e.message);
+      process.exit(1);
+    }
+
+    if (!conf.testDir) {
+      console.log(`The config file you specified does not define the required "testDir" key.
+Please read the docs for usage details https://github.com/georgejecook/rooibos/blob/master/docs/index.md#rooibosc`)
+    }
   } else if (options.testDir) {
     conf = {
       testDir: options.testDir,
