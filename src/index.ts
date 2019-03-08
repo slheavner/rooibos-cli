@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 import RooibosProcessor from './lib/RooibosProcessor';
-import { exists } from 'fs';
 const program = require('commander');
 const pkg = require('../package.json');
 const path = require('path');
