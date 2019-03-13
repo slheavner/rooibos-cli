@@ -7,12 +7,13 @@ import { RuntimeConfig } from './RuntimeConfig';
 const debug = Debug('RooibosProcessor');
 
 export default class RooibosProcessor {
-  constructor(testsPath: string, rootPath?: string) {
+  constructor(testsPath: string, rootPath: string, outputPath: string) {
     if (!testsPath) {
       throw new Error('testsPath is empty');
     }
     this._testsPath = testsPath;
-    this._rootPath = rootPath || '';
+    this._rootPath = rootPath;
+    this._outputPath = outputPath || this._rootPath;
     this._warnings = [];
     this._errors = [];
     this._mapFilename = `rooibosFunctionMap.brs`;
@@ -20,6 +21,7 @@ export default class RooibosProcessor {
 
   private readonly _testsPath: string;
   private readonly _rootPath: string;
+  private readonly _outputPath: string;
   private readonly _mapFilename: string;
   private readonly _warnings: string[];
   private readonly _errors: string[];
@@ -55,7 +57,7 @@ export default class RooibosProcessor {
     outputText += '\n' + this.runtimeConfig.createTestSuiteLookupFunction();
     outputText += '\n' + this.createFileFooterText();
 
-    const file = new FileDescriptor(this.testsPath, this._mapFilename, '.brs');
+    const file = new FileDescriptor(this._outputPath, this._mapFilename, '.brs');
     file.setFileContents(outputText);
     debug(`Writing to ${file.fullPath}`);
     file.saveFileContents();

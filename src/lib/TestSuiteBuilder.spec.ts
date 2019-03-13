@@ -13,6 +13,7 @@ chai.use(chaiSubset);
 let builder: TestSuiteBuilder;
 let sourcePath = 'src/test/stubProject';
 let targetPath = 'build';
+let specDir = 'build/source/tests/specs';
 
 function clearFiles() {
   fs.removeSync(targetPath);
@@ -90,14 +91,14 @@ describe('TestSuiteBuilder tests ', function() {
     });
 
     it('processes valid test file', () => {
-      let fileDescriptor = new FileDescriptor(`build/source/tests`, `VideoModuleTests.brs`, `.brs`);
+      let fileDescriptor = new FileDescriptor(specDir, `VideoModuleTests.brs`, `.brs`);
       let testSuite = builder.processFile(fileDescriptor);
       expect(testSuite).to.not.be.null;
       expect(testSuite.isValid).to.be.true;
     });
 
     it('processes solo test suite', () => {
-      let fileDescriptor = new FileDescriptor(`build/source/tests`, `soloSuite.brs`, `.brs`);
+      let fileDescriptor = new FileDescriptor(specDir, `soloSuite.brs`, `.brs`);
       let testSuite = builder.processFile(fileDescriptor);
       expect(testSuite).to.not.be.null;
       expect(testSuite.isValid).to.be.true;
@@ -105,7 +106,7 @@ describe('TestSuiteBuilder tests ', function() {
     });
 
     it('processes solo group', () => {
-      let fileDescriptor = new FileDescriptor(`build/source/tests`, `soloGroup.brs`, `.brs`);
+      let fileDescriptor = new FileDescriptor(specDir, `soloGroup.brs`, `.brs`);
       let testSuite = builder.processFile(fileDescriptor);
       expect(testSuite).to.not.be.null;
       expect(testSuite.isValid).to.be.true;
@@ -113,7 +114,7 @@ describe('TestSuiteBuilder tests ', function() {
     });
 
     it('processes solo test', () => {
-      let fileDescriptor = new FileDescriptor(`build/source/tests`, `soloTest.brs`, `.brs`);
+      let fileDescriptor = new FileDescriptor(specDir, `soloTest.brs`, `.brs`);
       let testSuite = builder.processFile(fileDescriptor);
       expect(testSuite).to.not.be.null;
       expect(testSuite.isValid).to.be.true;
@@ -121,7 +122,7 @@ describe('TestSuiteBuilder tests ', function() {
     });
 
     it('simple params', () => {
-      let fileDescriptor = new FileDescriptor(`build/source/tests`, `paramsTest.brs`, `.brs`);
+      let fileDescriptor = new FileDescriptor(specDir, `paramsTest.brs`, `.brs`);
       let testSuite = builder.processFile(fileDescriptor);
       expect(testSuite).to.not.be.null;
       expect(testSuite.isValid).to.be.true;
@@ -133,7 +134,7 @@ describe('TestSuiteBuilder tests ', function() {
     });
 
     it('complex params', () => {
-      let fileDescriptor = new FileDescriptor(`build/source/tests`, `complexParamsTests.brs`, `.brs`);
+      let fileDescriptor = new FileDescriptor(specDir, `complexParamsTests.brs`, `.brs`);
       let testSuite = builder.processFile(fileDescriptor);
       expect(testSuite).to.not.be.null;
       expect(testSuite.isValid).to.be.true;
