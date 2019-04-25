@@ -6,7 +6,7 @@ import { RuntimeConfig } from './RuntimeConfig';
 
 const debug = Debug('RooibosProcessor');
 
-export default class RooibosProcessor {
+export class RooibosProcessor {
   constructor(testsPath: string, rootPath: string, outputPath: string) {
     if (!testsPath) {
       throw new Error('testsPath is empty');
@@ -71,13 +71,13 @@ export default class RooibosProcessor {
   public reportErrors() {
     if (this.errors.length > 0) {
 
-      console.log(`
+      debug(`
     The following errors occurred during processing:
 
     ======
     `);
-      this.errors.forEach( (errorText) => console.log(`[ERROR] ${errorText}`));
-      console.log(`
+      this.errors.forEach( (errorText) => debug(`[ERROR] ${errorText}`));
+      debug(`
     ======
     `);
     }
@@ -86,13 +86,13 @@ export default class RooibosProcessor {
   public reportWarnings() {
     if (this.warnings.length > 0) {
 
-      console.log(`
+      debug(`
     The following warnings occurred during processing:
 
     ======
     `);
-      this.warnings.forEach( (errorText) => console.log(`[WARN] ${errorText}`));
-      console.log(`
+      this.warnings.forEach( (errorText) => debug(`[WARN] ${errorText}`));
+      debug(`
     ======
     `);
     }

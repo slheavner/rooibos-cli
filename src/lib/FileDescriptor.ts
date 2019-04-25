@@ -1,6 +1,8 @@
+import * as Debug from 'debug';
 import * as fs from 'fs';
 import * as path from 'path';
 
+const debug = Debug('FileDescriptor');
 import { FileType } from './FileType';
 
 export default class FileDescriptor {
@@ -33,7 +35,7 @@ export default class FileDescriptor {
     let pkgPath = `pkg:/${this.fullPath.replace(projectRoot, '')}`;
     //ugly hack while I find a better way of dealing with the projcet root
     pkgPath = pkgPath.replace('pkg:///', 'pkg:/').replace('pkg://', 'pkg:/');
-    console.log(`getPackagePath - projectRoot IS ${projectRoot} : ${this.fullPath} >>> ${pkgPath}`);
+    debug(`getPackagePath - projectRoot IS ${projectRoot} : ${this.fullPath} >>> ${pkgPath}`);
     return pkgPath;
   }
 

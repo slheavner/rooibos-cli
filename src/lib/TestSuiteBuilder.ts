@@ -93,7 +93,7 @@ export class TestSuiteBuilder {
     for (let lineNumber = 1; lineNumber <= lines.length; lineNumber++) {
       currentLocation = filePath + ':' + lineNumber.toString();
       let line = lines[lineNumber - 1];
-      // console.log(line);
+      // debug(line);
       if (lineNumber > this._maxLinesWithoutSuiteDirective && !isTestSuite) {
         debug('IGNORING FILE WITH NO TESTSUITE DIRECTIVE : ' + currentLocation);
         this.warnings.push('Ignoring file with no test suite directive' + fileDescriptor.fullPath);
@@ -177,7 +177,7 @@ export class TestSuiteBuilder {
           this.warnings.push(`Tag.TEST MARKED FOR Tag.IGNORE AND Tag.SOLO ${currentLocation}`);
         } else {
           isNextTokenSolo = true;
-          // console.log('isNextTokenSolo is true!! ' + line + ' ' + currentLocation);
+          // debug('isNextTokenSolo is true!! ' + line + ' ' + currentLocation);
         }
         continue;
       } else if (this.isTag(line, Tag.IGNORE) && !this.isTag(line, Tag.TEST_IGNORE_PARAMS)) {
@@ -319,7 +319,7 @@ export class TestSuiteBuilder {
               this.currentTestCases.forEach((aTestCase) => {
                 this.currentGroup.addTestCase(aTestCase);
                 if (aTestCase.isSolo) {
-                  // console.log('>>> ' + aTestCase.name + ' IS SOLO!');
+                  // debug('>>> ' + aTestCase.name + ' IS SOLO!');
                   testSuite.hasSoloTests = true;
                 }
               });

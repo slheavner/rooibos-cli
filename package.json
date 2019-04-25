@@ -1,8 +1,12 @@
 {
   "name": "rooibos-preprocessor",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "preprocessor for roku brightscript and scenegraph projects, using rooibos",
-  "main": "dist/index.ts",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "files": [
+    "dist/**/!(*.spec.*)*"
+  ],
   "directories": {
     "test": "test"
   },
@@ -48,11 +52,12 @@
     "prepublishOnly": "npm run compile",
     "tslint": "tslint ./src/**/*.ts",
     "build-and-test": "npm run compile && npm run test",
-    "coverage": "nyc report --reporter=text-lcov > coverage.lcov && codecov"
+    "coverage": "nyc report --reporter=text-lcov > coverage.lcov && codecov",
+    "publish-npm:beta": "npm publish --tag=next"
   },
   "preferGlobal": true,
   "bin": {
-    "rooibosC": "./dist/index.js"
+    "rooibosC": "dist/cli.js"
   },
   "keywords": [
     "brightscript",

@@ -3,13 +3,13 @@ import * as fs from 'fs-extra';
 
 import { expect } from 'chai';
 
-import ProjectProcessor from './RooibosProcessor';
+import { RooibosProcessor } from './RooibosProcessor';
 
 const chaiSubset = require('chai-subset');
 let dircompare = require('dir-compare');
 
 chai.use(chaiSubset);
-let processor: ProjectProcessor;
+let processor: RooibosProcessor;
 let sourcePath = 'src/test/stubProject';
 let testsPath = 'build/source/tests/specs';
 let rootPath = 'build/source';
@@ -32,7 +32,7 @@ describe('RooibosProcessor tests', function() {
   beforeEach(() => {
     clearFiles();
     copyFiles();
-    processor = new ProjectProcessor(testsPath, rootPath, outputPath);
+    processor = new RooibosProcessor(testsPath, rootPath, outputPath);
   });
 
   describe('Initialization', function() {

@@ -127,9 +127,9 @@ export class RuntimeConfig {
       } else {
         testSuite.isIncluded = true;
       }
-      // console.log('testSuite  ' + testSuite.name);
+      // debug('testSuite  ' + testSuite.name);
       testSuite.itGroups.forEach( (itGroup) => {
-        // console.log('GROUP  ' + itGroup.name);
+        // debug('GROUP  ' + itGroup.name);
         if (itGroup.isIgnored) {
           this.ignoredCount += itGroup.testCases.length;
           this.ignoredTestNames.push('  |-' + itGroup.name + ' [WHOLE GROUP]');
@@ -157,7 +157,7 @@ export class RuntimeConfig {
             itGroup.isIncluded = testSuite.isIncluded;
           }
           itGroup.testCases.forEach( (testCase) => {
-            // console.log(testCase.name + ' this._hasSoloTests ' + this._hasSoloTests + ' testCase.isSolo ' + testCase.isSolo);
+            // debug(testCase.name + ' this._hasSoloTests ' + this._hasSoloTests + ' testCase.isSolo ' + testCase.isSolo);
             if (this._hasSoloTests && !testCase.isSolo) {
               testCase.isIncluded = false;
             } else {
@@ -165,7 +165,7 @@ export class RuntimeConfig {
             }
           });
           itGroup.soloTestCases.forEach( (testCase) => {
-            // console.log(testCase.name + ' this._hasSoloTests ' + this._hasSoloTests + ' testCase.isSolo ' + testCase.isSolo);
+            // debug(testCase.name + ' this._hasSoloTests ' + this._hasSoloTests + ' testCase.isSolo ' + testCase.isSolo);
             testCase.isIncluded = true;
           });
         }

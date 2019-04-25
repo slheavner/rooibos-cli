@@ -5,7 +5,7 @@ import * as path from 'path';
 import { expect } from 'chai';
 
 import FileDescriptor from './FileDescriptor';
-import RooibosProcessor from './RooibosProcessor';
+import { RooibosProcessor } from './RooibosProcessor';
 import { TestCase } from './TestCase';
 
 const chaiSubset = require('chai-subset');
