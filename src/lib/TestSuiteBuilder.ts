@@ -1,6 +1,6 @@
 import * as Debug from 'debug';
 
-import FileDescriptor from './FileDescriptor';
+import File from './File';
 import { ItGroup } from './ItGroup';
 import { Tag } from './Tag';
 import { TestCase } from './TestCase';
@@ -56,13 +56,13 @@ export class TestSuiteBuilder {
     return this._maxLinesWithoutSuiteDirective;
   }
 
-  public processFile(fileDescriptor: FileDescriptor, rootPath?: string): TestSuite {
+  public processFile(file: File): TestSuite {
     'find a marker to indicate this is a test suit';
-    let code = fileDescriptor ? fileDescriptor.fileContents : null;
+    let code = file ? file.getFileContents() : null;
     let testSuite = new TestSuite();
     if (!code || !code.trim()) {
       debug(`no code for current descriptor`);
-      this.errors.push('No code for file' + (fileDescriptor ? fileDescriptor.fullPath : `unknown file`));
+      this.errors.push('No code for file' + (file ? file.fullPath : `unknown file`));
       return testSuite;
     }
     let isTokenItGroup = false;
@@ -79,13 +79,13 @@ export class TestSuiteBuilder {
 
     let nodeTestFileName = '';
     let nextName = '';
-    let name = fileDescriptor.normalizedFileName;
-    let filename = fileDescriptor.normalizedFileName;
+    let name = file.normalizedFileName;
+    let filename = file.normalizedFileName;
     this.reset();
     let currentLocation = '';
     let lines = code.split(/\r?\n/);
-    let filePath = fileDescriptor.fullPath;
-    testSuite.filePath = fileDescriptor.getPackagePath(rootPath || '');
+    let filePath = file.fullPath;
+    testSuite.filePath = file.pkgPath;
     this.groupNameCounts = {};
     this.currentGroup = null;
     this.reset();
@@ -96,7 +96,7 @@ export class TestSuiteBuilder {
       // debug(line);
       if (lineNumber > this._maxLinesWithoutSuiteDirective && !isTestSuite) {
         debug('IGNORING FILE WITH NO TESTSUITE DIRECTIVE : ' + currentLocation);
-        this.warnings.push('Ignoring file with no test suite directive' + fileDescriptor.fullPath);
+        this.warnings.push('Ignoring file with no test suite directive' + file.fullPath);
         break;
       }
       if (this.isTag(line, Tag.TEST_SUITE)) {
@@ -409,8 +409,8 @@ export class TestSuiteBuilder {
     this.hasCurrentTestCase = null;
 
     if (!isTestSuite) {
-      debug('Ignoring non test file ' + fileDescriptor.fullPath);
-      this.errors.push('Ignoring non test file ' + fileDescriptor.fullPath);
+      debug('Ignoring non test file ' + file.fullPath);
+      this.errors.push('Ignoring non test file ' + file.fullPath);
     }
     return testSuite;
   }

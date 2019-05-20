@@ -12,7 +12,7 @@
 
 ### Fixed
 
- - runtim error due to bad naming of RuntimeConfig vs RunTimeConfig on Linux operating systems.
+ - runtime error due to bad naming of RuntimeConfig vs RunTimeConfig on Linux operating systems.
 
 ## 2.1.0
 

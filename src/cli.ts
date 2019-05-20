@@ -1,4 +1,7 @@
 #!/usr/bin/env node
+import { inspect } from 'util';
+
+import { ProcessorConfig } from './lib/ProcessorConfig';
 import { RooibosProcessor } from './lib/RooibosProcessor';
 const program = require('commander');
 const pkg = require('../package.json');
@@ -21,34 +24,56 @@ program
 .action((options) => {
   console.log(`Processing....`);
   console.time('Finished in:');
-  let conf;
+  let config: ProcessorConfig;
+  let configJson = {};
 
   if (options.config) {
     try {
-      conf = require(path.resolve(process.cwd(), options.config));
+      configJson = require(path.resolve(process.cwd(), options.config));
     } catch (e) {
       console.log(e.message);
       process.exit(1);
     }
-
-    if (!conf.testPath) {
-      console.log(`The config file you specified does not define the required "testPath" key.
-Please read the docs for usage details https://github.com/georgejecook/rooibos/blob/master/docs/index.md#rooibosc`);
-    }
   } else if (options.testPath) {
-    conf = {
-      testPath: options.testPath,
-      rootPath: options.rootPath || '',
-      outputPath: options.outputPath || options.testPath
+    configJson = {
+      projectPath: options.projectPath,
     };
   } else {
     console.warn('You must specify either a config file or a test spec directory');
   }
 
-  let processor = new RooibosProcessor(conf.testPath, conf.rootPath, conf.outputPath);
+  validateConfig(configJson);
+  let processor = new RooibosProcessor(config);
   processor.processFiles();
 
   console.timeEnd('Finished in:');
 });
 
 program.parse(process.argv);
+
+function validateConfig(config: any): ProcessorConfig {
+  let processorConfig = config;
+  let docsLink = `\nPlease read the docs for usage details https://github.com/georgejecook/rooibos/blob/master/docs/index.md#rooibosc`;
+  config.isRecordingCodeCoverage = config.isRecordingCodeCoverage === true;
+  config.rooibosMetadataMapFilename = config.rooibosMetadataMapFilename || 'source/tests/rooibosFunctionMap.brs';
+
+  if (!config.projectPath) {
+    throw new Error('Config does not contain projectPath property' + docsLink);
+  }
+  if (!config.sourceFilePattern && config.isRecordingCodeCoverage) {
+    throw new Error('Config does not contain sourceFilePattern regex\'s, ' +
+      'which are required when recording code coverage' + docsLink);
+  }
+  if (!config.testsFilePattern) {
+    let defaultTestsRegex = [
+      '**/tests/**/*.brs',
+      '!**/rooibosDist.brs',
+      '!**/rooibosFunctionMap.brs',
+      '!**/TestsScene.brs'
+    ];
+    console.log('config does not specify regex to lookup test files, using default value ' + inspect(defaultTestsRegex)
+    + docsLink);
+    config.testsFilePattern = defaultTestsRegex;
+  }
+  return processorConfig;
+}

@@ -1,6 +1,6 @@
 import * as Debug from 'debug';
 
-import FileDescriptor from './FileDescriptor';
+import File from './File';
 
 const debug = Debug('FunctionMap');
 
@@ -24,11 +24,11 @@ export default class FunctionMap {
    * @param filename
    * @param assoicatedFile
    */
-  public processFile(fileDescriptor: FileDescriptor) {
-    debug(`processing file `, fileDescriptor.fullPath);
+  public processFile(file: File) {
+    debug(`processing file `, file.fullPath);
     //brute force, get EVERY function declaration!
-    const matches = this.getFunctionsMatchesValues(fileDescriptor.fileContents, this.functionRegex, 2);
-    this.functionMaps[fileDescriptor.normalizedFileName] = matches;
+    const matches = this.getFunctionsMatchesValues(file.getFileContents(), this.functionRegex, 2);
+    this.functionMaps[file.normalizedFileName] = matches;
     return matches;
   }
 

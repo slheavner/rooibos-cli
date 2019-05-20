@@ -1,11 +1,9 @@
 import * as Debug from 'debug';
-import * as fs from 'fs-extra';
-import * as M from 'minimatch';
-import { Minimatch } from 'minimatch';
 import * as path from 'path';
 
-import FileDescriptor from './FileDescriptor';
+import File from './File';
 import FunctionMap from './FunctionMap';
+import { ProcessorConfig } from './ProcessorConfig';
 import { TestSuite } from './TestSuite';
 import { TestSuiteBuilder } from './TestSuiteBuilder';
 
@@ -13,20 +11,16 @@ const debug = Debug('RooibosProcessor');
 
 export class RuntimeConfig {
 
-  constructor(functionMap: FunctionMap) {
+  constructor(functionMap: FunctionMap, config: ProcessorConfig) {
     this._testSuites = [];
-    this._warnings = [];
-    this._errors = [];
     this.ignoredTestNames = [];
     this._functionMap = functionMap;
-    this._excludeMatcher = new Minimatch(`rooibos.cat.brs`);
+    this._config = config;
   }
 
+  private _config: ProcessorConfig;
   private ignoredCount: number = 0;
   private ignoredTestNames: string[];
-  private readonly _warnings: string[];
-  private readonly _errors: string[];
-  private _excludeMatcher: M.IMinimatch;
   private _testSuites: TestSuite[];
   private _hasSoloSuites: boolean = false;
   private _hasSoloGroups: boolean = false;
@@ -37,61 +31,47 @@ export class RuntimeConfig {
     return this._testSuites;
   }
 
-  public get errors(): string[] {
-    return this._errors;
-  }
-
-  public get warnings(): string[] {
-    return this._warnings;
-  }
-
   /**
    * Process all of the tests files in the given folder,
    * Create TestSuites, and functionMaps
    * @function processSourceFolder
-   * @param directory
    */
-  public processPath(directory: string, rootPath?: string) {
-    debug(`processing files at path ${directory} `);
+  public process() {
     //TODO - make async.
     //TODO - cachetimestamps for files - for performance
     let testSuiteBuilder = new TestSuiteBuilder(50);
-    fs.readdirSync(directory).forEach((filename) => {
-      const fullPath = path.join(directory, filename);
-      if (fs.statSync(fullPath).isDirectory()) {
-        this.processPath(fullPath, rootPath);
-      } else {
-        const extension = path.extname(filename).toLowerCase();
-        if (extension === '.brs') {
-          if (!this._excludeMatcher.match(directory)) {
-            const fileDescriptor = new FileDescriptor(directory, filename, path.extname(filename));
-            this._functionMap.processFile(fileDescriptor);
-            let testSuite = testSuiteBuilder.processFile(fileDescriptor, rootPath);
-            if (testSuite.isValid) {
-              this.testSuites.push(testSuite);
-              if (testSuite.isSolo) {
-                this._hasSoloSuites = true;
-              }
-              if (testSuite.hasSoloTests) {
-                this._hasSoloTests = true;
-              }
-              if (testSuite.hasSoloGroups) {
-                this._hasSoloGroups = true;
-              }
-            } else {
-              debug(`ignoring invalid suite`);
-            }
-          } else {
-            this._warnings.push(`skipping excluded path ${directory}`);
+    const glob = require('glob-all');
+    let targetPath = path.resolve(this._config.projectPath);
+    debug(`processing files at path ${targetPath} with pattern ${this._config.testsFilePattern}`);
+    let files = glob.sync(this._config.testsFilePattern, { cwd: targetPath });
+    for (const filePath of files) {
+      const extension = path.extname(filePath).toLowerCase();
+      if (extension === '.brs') {
+        const projectPath = path.dirname(filePath);
+        const fullPath = path.join(targetPath, projectPath);
+        const filename = path.basename(filePath);
+
+        const file = new File(fullPath, projectPath, filename, path.extname(filename));
+        this._functionMap.processFile(file);
+        let testSuite = testSuiteBuilder.processFile(file);
+        if (testSuite.isValid) {
+          this.testSuites.push(testSuite);
+          if (testSuite.isSolo) {
+            this._hasSoloSuites = true;
           }
+          if (testSuite.hasSoloTests) {
+            this._hasSoloTests = true;
+          }
+          if (testSuite.hasSoloGroups) {
+            this._hasSoloGroups = true;
+          }
+        } else {
+          debug(`ignoring invalid suite`);
         }
       }
-    });
+    }
 
     this.updateIncludedFlags();
-
-    this.errors.concat(testSuiteBuilder.errors);
-    this.warnings.concat(testSuiteBuilder.warnings);
   }
 
   public createTestSuiteLookupFunction(): string {
@@ -115,7 +95,7 @@ export class RuntimeConfig {
    * to include it in the final json payload
    */
   private updateIncludedFlags() {
-    this.testSuites.forEach( (testSuite) => {
+    this.testSuites.forEach((testSuite) => {
       if (this._hasSoloTests && !testSuite.hasSoloTests) {
         testSuite.isIncluded = false;
       } else if (this._hasSoloSuites && !testSuite.isSolo) {
@@ -128,7 +108,7 @@ export class RuntimeConfig {
         testSuite.isIncluded = true;
       }
       // debug('testSuite  ' + testSuite.name);
-      testSuite.itGroups.forEach( (itGroup) => {
+      testSuite.itGroups.forEach((itGroup) => {
         // debug('GROUP  ' + itGroup.name);
         if (itGroup.isIgnored) {
           this.ignoredCount += itGroup.testCases.length;
@@ -156,7 +136,7 @@ export class RuntimeConfig {
           } else {
             itGroup.isIncluded = testSuite.isIncluded;
           }
-          itGroup.testCases.forEach( (testCase) => {
+          itGroup.testCases.forEach((testCase) => {
             // debug(testCase.name + ' this._hasSoloTests ' + this._hasSoloTests + ' testCase.isSolo ' + testCase.isSolo);
             if (this._hasSoloTests && !testCase.isSolo) {
               testCase.isIncluded = false;
@@ -164,7 +144,7 @@ export class RuntimeConfig {
               testCase.isIncluded = itGroup.isIncluded || testCase.isSolo;
             }
           });
-          itGroup.soloTestCases.forEach( (testCase) => {
+          itGroup.soloTestCases.forEach((testCase) => {
             // debug(testCase.name + ' this._hasSoloTests ' + this._hasSoloTests + ' testCase.isSolo ' + testCase.isSolo);
             testCase.isIncluded = true;
           });
@@ -174,7 +154,7 @@ export class RuntimeConfig {
   }
 
   public asJson(): object[] {
-    return this.testSuites.filter( (testSuite) => testSuite.isIncluded)
+    return this.testSuites.filter((testSuite) => testSuite.isIncluded)
       .map((testSuite) => testSuite.asJson());
   }
 }

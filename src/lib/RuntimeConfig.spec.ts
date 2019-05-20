@@ -5,9 +5,11 @@ import * as path from 'path';
 import { expect } from 'chai';
 
 import FunctionMap from './FunctionMap';
+import { ProcessorConfig } from './ProcessorConfig';
 import { RuntimeConfig } from './RuntimeConfig';
 
 const chaiSubset = require('chai-subset');
+let config: ProcessorConfig = require('../test/testProcessorConfig.json');
 
 chai.use(chaiSubset);
 let runtimeConfig: RuntimeConfig;
@@ -34,7 +36,7 @@ function copyFiles(sourcePath) {
 describe('RuntimeConfig tests ', function() {
   beforeEach(() => {
     let functionMap = new FunctionMap();
-    runtimeConfig = new RuntimeConfig(functionMap);
+    runtimeConfig = new RuntimeConfig(functionMap, config);
   });
 
   describe('oneFile', function() {
@@ -44,42 +46,42 @@ describe('RuntimeConfig tests ', function() {
 
     it('processes valid test file', () => {
       copyFiles(sourcePathOneFile);
-      runtimeConfig.processPath(path.join(targetPath, 'source/tests'), targetPath);
+      runtimeConfig.process();
       let suites = runtimeConfig.testSuites;
       expect(suites).to.not.be.null;
     });
 
     it('processes bunch of files', () => {
       copyFiles(sourcePathBunchOfFiles);
-      runtimeConfig.processPath(path.join(targetPath, 'source/tests'), targetPath);
+      runtimeConfig.process();
       let suites = runtimeConfig.testSuites;
       expect(suites).to.not.be.null;
     });
 
     it('processes files with solo suite', () => {
       copyFiles(sourcePathSoloSuites);
-      runtimeConfig.processPath(path.join(targetPath, 'source/tests'), targetPath);
+      runtimeConfig.process();
       let suites = runtimeConfig.testSuites;
       expect(suites).to.not.be.null;
     });
 
     it('processes files with solo group', () => {
       copyFiles(sourcePathSoloGroup);
-      runtimeConfig.processPath(path.join(targetPath, 'source/tests'), targetPath);
+      runtimeConfig.process();
       let suites = runtimeConfig.testSuites;
       expect(suites).to.not.be.null;
     });
 
     it('processes files with solo tests', () => {
       copyFiles(sourcePathSoloTests);
-      runtimeConfig.processPath(path.join(targetPath, 'source/tests'), targetPath);
+      runtimeConfig.process();
       let suites = runtimeConfig.testSuites;
       expect(suites).to.not.be.null;
     });
 
     it('processes files with no solo tests', () => {
       copyFiles(sourcePathNoSolos);
-      runtimeConfig.processPath(path.join(targetPath, 'source/tests'), targetPath);
+      runtimeConfig.process();
       let suites = runtimeConfig.testSuites;
       expect(suites).to.not.be.null;
       let json = runtimeConfig.asJson(); //TODO test these return values

@@ -1,4 +1,4 @@
-import FileDescriptor from './FileDescriptor';
+import File from './File';
 import { ItGroup } from './ItGroup';
 
 export class TestSuite {

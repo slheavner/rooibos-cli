@@ -3,6 +3,7 @@ import * as fs from 'fs-extra';
 
 import { expect } from 'chai';
 
+import { ProcessorConfig } from './ProcessorConfig';
 import { RooibosProcessor } from './RooibosProcessor';
 
 const chaiSubset = require('chai-subset');
@@ -11,10 +12,9 @@ let dircompare = require('dir-compare');
 chai.use(chaiSubset);
 let processor: RooibosProcessor;
 let sourcePath = 'src/test/stubProject';
-let testsPath = 'build/source/tests/specs';
-let rootPath = 'build/source';
-let outputPath = 'build/source/tests/framework';
 let targetPath = 'build';
+
+let config: ProcessorConfig = require('../test/testProcessorConfig.json');
 
 function clearFiles() {
   fs.removeSync(targetPath);
@@ -32,12 +32,12 @@ describe('RooibosProcessor tests', function() {
   beforeEach(() => {
     clearFiles();
     copyFiles();
-    processor = new RooibosProcessor(testsPath, rootPath, outputPath);
+    processor = new RooibosProcessor(config);
   });
 
   describe('Initialization', function() {
     it('correctly sets source paths and config', function() {
-      expect(processor.testsPath).to.equal(testsPath);
+      expect(processor.config).to.equal(config);
     });
   });
 
