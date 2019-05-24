@@ -17,6 +17,34 @@ function OnKeyEvent(key as String, press as Boolean) as Boolean
       doPretendMethodImpl()
     end if
   end if
+
+  if (some.method() = other.in.brackets) then
+    for i = 0 to 20
+        ? " hello world"
+    end for
+
+  end if
+
+  if some.value = other then ? "boo" else ? "goose"
+
+  while a < 10
+  a++
+  end while
+
+  aMultiLineArray = [19,
+  29,
+  m.methodCall(), a = true,
+  40
+  ]
+
+  someJson = { "fvoo":"bar"
+    "isTrue": true
+    {
+        "indented": true
+    }
+  }
+
+  m.ICanBeTraced = true
   return false
 end function
 

@@ -1,10 +1,9 @@
+import * as brs from 'brs';
 import * as fs from 'fs';
 import * as path from 'path';
 
-import { BrsFile } from 'brightscript-language';
-import { XmlFile } from 'brightscript-language';
-
 import { FileType } from './FileType';
+import { Statement } from 'brs/types/parser/Statement';
 
 /**
  * describes a file in our project.
@@ -37,7 +36,7 @@ export default class File {
   public extension: string;
   public associatedFile?: File;
   public parentFile?: File;
-  public programFile: XmlFile | BrsFile;
+  public ast: Statement[];
   public componentIds: Set<string>;
 
   private readonly _importedNamespaceNames: Set<string>;
