@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { inspect } from 'util';
 
-import { ProcessorConfig } from './lib/ProcessorConfig';
+import { createProcessorConfig, ProcessorConfig } from './lib/ProcessorConfig';
 import { RooibosProcessor } from './lib/RooibosProcessor';
 const program = require('commander');
 const pkg = require('../package.json');
@@ -13,9 +13,11 @@ program
 
 program
 .option('-c, --config [path]', 'Specify a config file to use.')
-.option('-t, --testPath [path]', 'Path to test spec directory.')
-.option('-r, --rootPath [path]', 'Path to root directory.')
-.option('-o, --outputPath [path]', 'Path to output directory. This is where the test map file will be written to.')
+.option('-p, --projectPath [path]', 'Path to test spec directory.')
+.option('-t, --testsFilePattern []', 'Array of globs corresponding to test files to include. Relative to projectPath')
+.option('-v, --isRecordingCodeCoverage []', 'Indicates that we want to generate code coverage')
+.option('-s, --sourceFilePattern []', 'Array of globs corresponding to files to include in code coverage. Relative to projectPath')
+.option('-o, --outputPath [path]', 'Path to package output directory. This is where generated files, required for execution will be copied to. Relative to projectPath, defaults to source')
 .description(`
   processes a brightscript SceneGraph project and creates json data structures
   which can be used by the rooibos unit testing framework, or vsCode IDE
@@ -37,43 +39,17 @@ program
   } else if (options.testPath) {
     configJson = {
       projectPath: options.projectPath,
+      testsFilePattern: options.testsFilePattern,
+      isRecordingCodeCoverage: options.isRecordingCodeCoverage,
+      sourceFilePattern: options.sourceFilePattern,
+      outputPath: options.outputPath,
     };
-  } else {
-    console.warn('You must specify either a config file or a test spec directory');
   }
 
-  validateConfig(configJson);
-  let processor = new RooibosProcessor(config);
+  let processor = new RooibosProcessor(createProcessorConfig(configJson));
   processor.processFiles();
 
   console.timeEnd('Finished in:');
 });
 
 program.parse(process.argv);
-
-function validateConfig(config: any): ProcessorConfig {
-  let processorConfig = config;
-  let docsLink = `\nPlease read the docs for usage details https://github.com/georgejecook/rooibos/blob/master/docs/index.md#rooibosc`;
-  config.isRecordingCodeCoverage = config.isRecordingCodeCoverage === true;
-  config.rooibosMetadataMapFilename = config.rooibosMetadataMapFilename || 'source/tests/rooibosFunctionMap.brs';
-
-  if (!config.projectPath) {
-    throw new Error('Config does not contain projectPath property' + docsLink);
-  }
-  if (!config.sourceFilePattern && config.isRecordingCodeCoverage) {
-    throw new Error('Config does not contain sourceFilePattern regex\'s, ' +
-      'which are required when recording code coverage' + docsLink);
-  }
-  if (!config.testsFilePattern) {
-    let defaultTestsRegex = [
-      '**/tests/**/*.brs',
-      '!**/rooibosDist.brs',
-      '!**/rooibosFunctionMap.brs',
-      '!**/TestsScene.brs'
-    ];
-    console.log('config does not specify regex to lookup test files, using default value ' + inspect(defaultTestsRegex)
-    + docsLink);
-    config.testsFilePattern = defaultTestsRegex;
-  }
-  return processorConfig;
-}

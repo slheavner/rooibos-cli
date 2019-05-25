@@ -21,6 +21,7 @@ export class CodeCoverageProcessor {
       this._coverageBrsTemplate = fs.readFileSync(path.join(__dirname, './CodeCoverageTemplate.brs'), 'utf8');
       this._coverageComponentBrsTemplate = fs.readFileSync(path.join(__dirname, './CodeCoverage.brs'), 'utf8');
       this._coverageComponentXmlTemplate = fs.readFileSync(path.join(__dirname, './CodeCoverage.xml'), 'utf8');
+      this._coverageSupportTemplate = fs.readFileSync(path.join(__dirname, './CodeCoverageSupport.brs'), 'utf8');
     } catch (e) {
       console.log('Error:', e.stack);
     }
@@ -33,6 +34,7 @@ export class CodeCoverageProcessor {
   private _coverageComponentXmlTemplate: string;
   private _filePathMap: Map<number, string>;
   private _expectedCoverageMap: any;
+  private _coverageSupportTemplate: any;
 
   get config(): ProcessorConfig {
     return this._config;
@@ -45,7 +47,7 @@ export class CodeCoverageProcessor {
     let processedFiles = [];
     let targetPath = path.resolve(this._config.projectPath);
     debug(`processing files at path ${targetPath} with pattern ${this._config.sourceFilePattern}`);
-    let files = glob.sync(this._config.sourceFilePattern, {cwd: targetPath});
+    let files = glob.sync(this._config.sourceFilePattern, { cwd: targetPath });
     for (const filePath of files) {
       const extension = path.extname(filePath).toLowerCase();
       if (extension === '.brs') {
@@ -64,6 +66,7 @@ export class CodeCoverageProcessor {
       }
     }
     this.createCoverageComponent();
+    this.createCoverageSupport();
     debug(`finished processing code coverage`);
   }
 
@@ -119,7 +122,6 @@ export class CodeCoverageProcessor {
   }
 
   public getBrsAPIText(file: File, coverageMap: Map<number, number>): string {
-    let lineMapText = this.getLineMapText(coverageMap);
     let template = this._coverageBrsTemplate.replace(/\#ID\#/g, this._fileId.toString().trim());
     return template;
   }
@@ -140,18 +142,12 @@ export class CodeCoverageProcessor {
     file.saveFileContents();
   }
 
-  public getLineMapText(lineMap: Map<number, number>): string {
-    return JSON.stringify(lineMap);
-    // let text = '[';
-    // const limit = 200;
-    // for (let i = 0; i < lineMap.length; i++) {
-    //   text += lineMap[i].toString().trim() + ',';
-    //   if (i > 0 && i % limit === 0) {
-    //     text += '\n';
-    //   }
-    // }
-    // text += ']';
-    // return text;
+  public createCoverageSupport() {
+    let targetPath = path.resolve(this._config.projectPath);
+    let file = new File(path.resolve(path.join(targetPath), 'source'), 'source', 'CodeCoverageSupport.brs', '.brs');
+    file.setFileContents(this._coverageSupportTemplate);
+    debug(`Writing to ${file.fullPath}`);
+    file.saveFileContents();
   }
 
   private getFuncCallText(lineNumber: number, lineType: CodeCoverageLineType) {

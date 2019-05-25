@@ -2,8 +2,9 @@ import * as brs from 'brs';
 import * as fs from 'fs';
 import * as path from 'path';
 
-import { FileType } from './FileType';
 import { Statement } from 'brs/types/parser/Statement';
+
+import { FileType } from './FileType';
 
 /**
  * describes a file in our project.

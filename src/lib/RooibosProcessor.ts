@@ -14,24 +14,20 @@ export class RooibosProcessor {
   constructor(config: ProcessorConfig) {
 
     this._config = config;
-    config.isRecordingCodeCoverage = config.isRecordingCodeCoverage === true;
-    config.rooibosMetadataMapFilename = config.rooibosMetadataMapFilename || 'source/tests/rooibosFunctionMap.brs';
     debug('Running project processor');
 
     if (!config.projectPath) {
       throw new Error('Config does not contain projectPath property');
     }
     if (!config.sourceFilePattern && config.isRecordingCodeCoverage) {
-      throw new Error('Config does not contain sourcFilePattern regex\'s, ' +
+      throw new Error('Config does not contain sourceFilePattern regex\'s, ' +
         'which are required when recording code coverage');
     }
     if (!config.testsFilePattern) {
       throw new Error('Config does not contain testsFilePattern regex\'s');
     }
-    this._mapFilename = `rooibosFunctionMap.brs`;
   }
 
-  private readonly _mapFilename: string;
   private readonly _config: ProcessorConfig;
 
   public runtimeConfig: RuntimeConfig;
@@ -56,8 +52,8 @@ export class RooibosProcessor {
     outputText += '\n' + this.createTestsHeaderText();
     outputText += '\n' + this.runtimeConfig.createTestSuiteLookupFunction();
     outputText += '\n' + this.createFileFooterText();
-    let mapFileName = path.join(this.config.projectPath, this._config.rooibosMetadataMapFilename);
-    const file = new File(path.resolve(path.dirname(mapFileName)), path.dirname(this._config.rooibosMetadataMapFilename), path.basename(this._config.rooibosMetadataMapFilename), '.brs');
+    let mapFileName = path.join(this.config.projectPath, this.config.outputPath, 'rooibosFunctionMap.brs');
+    const file = new File(path.resolve(path.dirname(mapFileName)), path.dirname(mapFileName), path.basename(mapFileName), '.brs');
     file.setFileContents(outputText);
     debug(`Writing to ${file.fullPath}`);
     file.saveFileContents();

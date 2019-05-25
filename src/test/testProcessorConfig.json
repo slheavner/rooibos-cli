@@ -17,5 +17,5 @@
 		"!**/rooibosFunctionMap.brs",
 		"!**/TestsScene.brs"
 	],
-	"isRecordingCodeCoverage": false
+	"isRecordingCodeCoverage": true
 }
