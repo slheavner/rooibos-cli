@@ -15,9 +15,12 @@ export class CodeCoverageProcessor {
     this._config = config;
     this._fileId = 0;
     let fs = require('fs');
-
+    this._filePathMap = new Map<number, string>();
+    this._expectedCoverageMap = {};
     try {
       this._coverageBrsTemplate = fs.readFileSync(path.join(__dirname, './CodeCoverageTemplate.brs'), 'utf8');
+      this._coverageComponentBrsTemplate = fs.readFileSync(path.join(__dirname, './CodeCoverage.brs'), 'utf8');
+      this._coverageComponentXmlTemplate = fs.readFileSync(path.join(__dirname, './CodeCoverage.xml'), 'utf8');
     } catch (e) {
       console.log('Error:', e.stack);
     }
@@ -26,6 +29,10 @@ export class CodeCoverageProcessor {
   private _config: ProcessorConfig;
   private _fileId: number;
   private _coverageBrsTemplate: string;
+  private _coverageComponentBrsTemplate: string;
+  private _coverageComponentXmlTemplate: string;
+  private _filePathMap: Map<number, string>;
+  private _expectedCoverageMap: any;
 
   get config(): ProcessorConfig {
     return this._config;
@@ -38,7 +45,7 @@ export class CodeCoverageProcessor {
     let processedFiles = [];
     let targetPath = path.resolve(this._config.projectPath);
     debug(`processing files at path ${targetPath} with pattern ${this._config.sourceFilePattern}`);
-    let files = glob.sync(this._config.sourceFilePattern, { cwd: targetPath });
+    let files = glob.sync(this._config.sourceFilePattern, {cwd: targetPath});
     for (const filePath of files) {
       const extension = path.extname(filePath).toLowerCase();
       if (extension === '.brs') {
@@ -56,6 +63,7 @@ export class CodeCoverageProcessor {
         processedFiles.push(file);
       }
     }
+    this.createCoverageComponent();
     debug(`finished processing code coverage`);
   }
 
@@ -63,7 +71,7 @@ export class CodeCoverageProcessor {
     this._fileId++;
     let fileContents = '';
     let lines = file.getFileContents().split(/\r?\n/);
-    let coverageMap: CodeCoverageLineType[] = [];
+    let coverageMap: Map<number, number> = new Map<number, number>();
     let visitableLines = new Map<number, brs.parser.Stmt.Statement | OtherStatement>();
     this.getVisitibleLinesFor(file.ast, visitableLines);
     for (let lineNumber = 0; lineNumber < lines.length; lineNumber++) {
@@ -72,27 +80,23 @@ export class CodeCoverageProcessor {
       let coverageType = CodeCoverageLineType.noCode;
       if (statement) {
         if (statement instanceof brs.parser.Stmt.If) {
-          //1. work out where we can insert this on the if statement
-          let match = /(^\s*if\s*)((?!then).)*/i.exec(line);
-          if (match) {
-            if (match.length > 2) {
-              let funcCall = this.getFuncCallText(lineNumber, CodeCoverageLineType.condition);
-              line = `${match[1]} ${funcCall} and (${match[0].substring(match[1].length)})`;
-            }
-          }
+          let conditionStartPos = statement.condition.location.start.column;
+          let conditionEndPos = statement.condition.location.end.column;
+          let funcCall = this.getFuncCallText(lineNumber, CodeCoverageLineType.condition);
+          let conditionText = line.substr(conditionStartPos, conditionEndPos - conditionStartPos);
+          let restofLineText = line.substring(conditionEndPos);
+          line = `${line.substr(0, conditionStartPos)} ${funcCall} and (${conditionText}) ${restofLineText}`;
+          coverageType = CodeCoverageLineType.condition;
         } else if (statement instanceof OtherStatement) {
+          debug(`ignoring unsupported statments type`, statement);
           //is it an else if?
-          let match = /(^\s*else if\s*)((?!then).)*/i.exec(line);
-          if (match) {
-            if (match.length > 2) {
-              let funcCall = this.getFuncCallText(lineNumber, CodeCoverageLineType.condition);
-              line = `${match[1]} ${funcCall} and (${match[0].substring(match[1].length)})`;
-            }
-          }
+          //ignoring for now
+          coverageType = CodeCoverageLineType.condition;
         } else {
           //all types that can be prefixed with the funcall and a colon (i.e for, while, return foreach, assign)
           let funcCall = this.getFuncCallText(lineNumber, CodeCoverageLineType.code);
           line = `${funcCall}: ${line}`;
+          coverageType = CodeCoverageLineType.code;
         }
       } else {
         debug(`could not ascertain symbol type for line "${line} - ignoring`);
@@ -102,37 +106,52 @@ export class CodeCoverageProcessor {
         line += '\n';
       }
       fileContents += line;
-      coverageMap.push(coverageType);
+      if (coverageType !== CodeCoverageLineType.noCode) {
+        coverageMap[lineNumber] = coverageType;
+      }
     }
-
-    // iterate over file
-
-    //for each line in file iterate
+    this._expectedCoverageMap[this._fileId.toString().trim()] = coverageMap;
+    this._filePathMap[this._fileId] = file.pkgUri;
     fileContents += this.getBrsAPIText(file, coverageMap);
     file.setFileContents(fileContents);
     debug(`Writing to ${file.fullPath}`);
-    //file.saveFileContents();
+    file.saveFileContents();
   }
 
-  public getBrsAPIText(file: File, coverageMap: CodeCoverageLineType[]): string {
+  public getBrsAPIText(file: File, coverageMap: Map<number, number>): string {
     let lineMapText = this.getLineMapText(coverageMap);
     let template = this._coverageBrsTemplate.replace(/\#ID\#/g, this._fileId.toString().trim());
-    template = template.replace(/\#LINE_MAP\#/g, lineMapText);
-    template = template.replace(/\#FILE_PATH\#/g, file.fullPath);
     return template;
   }
 
-  public getLineMapText(lineMap: CodeCoverageLineType[]): string {
-    let text = '[';
-    const limit = 200;
-    for (let i = 0; i < lineMap.length; i++) {
-      text += lineMap[i].toString().trim() + ',';
-      if (i > 0 && i % limit === 0) {
-        text += '\n';
-      }
-    }
-    text += ']';
-    return text;
+  public createCoverageComponent() {
+    let targetPath = path.resolve(this._config.projectPath);
+    let file = new File(path.resolve(path.join(targetPath), 'components'), 'components', 'CodeCoverage.xml', '.xml');
+    file.setFileContents(this._coverageComponentXmlTemplate);
+    debug(`Writing to ${file.fullPath}`);
+    file.saveFileContents();
+
+    file = new File(path.resolve(path.join(targetPath, 'components')), 'components', 'CodeCoverage.brs', '.brs');
+    let template = this._coverageComponentBrsTemplate;
+    template = template.replace(/\#EXPECTED_MAP\#/g, JSON.stringify(this._expectedCoverageMap));
+    template = template.replace(/\#FILE_PATH_MAP\#/g, JSON.stringify(this._filePathMap));
+    file.setFileContents(template);
+    debug(`Writing to ${file.fullPath}`);
+    file.saveFileContents();
+  }
+
+  public getLineMapText(lineMap: Map<number, number>): string {
+    return JSON.stringify(lineMap);
+    // let text = '[';
+    // const limit = 200;
+    // for (let i = 0; i < lineMap.length; i++) {
+    //   text += lineMap[i].toString().trim() + ',';
+    //   if (i > 0 && i % limit === 0) {
+    //     text += '\n';
+    //   }
+    // }
+    // text += ']';
+    // return text;
   }
 
   private getFuncCallText(lineNumber: number, lineType: CodeCoverageLineType) {
@@ -154,9 +173,11 @@ export class CodeCoverageProcessor {
           for (let i = 0; i < statement.elseIfs.length; i++) {
             let elseIfStatement = statement.elseIfs[i];
             this.getVisitibleLinesFor(elseIfStatement.thenBranch.statements, visitableLines);
-            let elseIfLine = statement.tokens.elseIfs[i].location.start.line - 1;
-            if (!visitableLines.has(elseIfLine)) {
-              visitableLines.set(elseIfLine, new OtherStatement(elseIfStatement));
+            if (statement.tokens.elseIfs[i]) {
+              let elseIfLine = statement.tokens.elseIfs[i].location.start.line - 1;
+              if (!visitableLines.has(elseIfLine)) {
+                visitableLines.set(elseIfLine, new OtherStatement(elseIfStatement));
+              }
             }
           }
         }

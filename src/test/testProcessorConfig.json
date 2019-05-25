@@ -8,7 +8,8 @@
 		"!**/rLogComponents",
 		"!**/rooibosDist.brs",
 		"!**/rooibosFunctionMap.brs",
-		"!**/TestsScene.brs"
+		"!**/TestsScene.brs",
+		"!**/ThreadUtils.brs"
 	],
 	"testsFilePattern": [
 		"**/tests/**/*.brs",
