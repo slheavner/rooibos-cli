@@ -55,6 +55,7 @@
     "build": "npm run compile && cp ./src/lib/*.brs dist/lib && cp ./src/lib/*.xml dist/lib",
     "test": "npm run build && nyc mocha src/**/*.spec.ts --full-trace --bail",
     "coverage": "nyc report --reporter=text-lcov > coverage.lcov && codecov",
+    "publish-npm": "npm run test && npm publish",
     "publish-npm:beta": "npm run test && npm publish --tag=beta"
   },
   "preferGlobal": true,
