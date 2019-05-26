@@ -4,6 +4,22 @@
 
 ### Added
 
+ - code coverage
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+ - runtime error due to bad naming of RuntimeConfig vs RunTimeConfig on Linux operating systems.
+
+
+## 2.1.1
+
+### Added
+
 ### Changed
 
 ### Deprecated

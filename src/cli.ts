@@ -13,10 +13,10 @@ program
 
 program
 .option('-c, --config [path]', 'Specify a config file to use.')
-.option('-p, --projectPath [path]', 'Path to test spec directory.')
-.option('-t, --testsFilePattern []', 'Array of globs corresponding to test files to include. Relative to projectPath')
-.option('-v, --isRecordingCodeCoverage []', 'Indicates that we want to generate code coverage')
-.option('-s, --sourceFilePattern []', 'Array of globs corresponding to files to include in code coverage. Relative to projectPath')
+.option('-p, --projectPath [path]', 'Root path of project/build folder (e.g. roku-deploy staging folder)')
+.option('-t, --testsFilePattern [value]', 'Array of globs corresponding to test files to include. Relative to projectPath')
+.option('-v, --isRecordingCodeCoverage [value]', 'Indicates that we want to generate code coverage')
+.option('-s, --sourceFilePattern [value]', 'Array of globs corresponding to files to include in code coverage. Relative to projectPath')
 .option('-o, --outputPath [path]', 'Path to package output directory. This is where generated files, required for execution will be copied to. Relative to projectPath, defaults to source')
 .description(`
   processes a brightscript SceneGraph project and creates json data structures
@@ -26,7 +26,6 @@ program
 .action((options) => {
   console.log(`Processing....`);
   console.time('Finished in:');
-  let config: ProcessorConfig;
   let configJson = {};
 
   if (options.config) {
@@ -36,7 +35,7 @@ program
       console.log(e.message);
       process.exit(1);
     }
-  } else if (options.testPath) {
+  } else {
     configJson = {
       projectPath: options.projectPath,
       testsFilePattern: options.testsFilePattern,
@@ -46,7 +45,8 @@ program
     };
   }
 
-  let processor = new RooibosProcessor(createProcessorConfig(configJson));
+  let processorConfig = createProcessorConfig(configJson);
+  let processor = new RooibosProcessor(processorConfig);
   processor.processFiles();
 
   console.timeEnd('Finished in:');

@@ -45,6 +45,7 @@ export class RuntimeConfig {
     debug(`processing files at path ${targetPath} with pattern ${this._config.testsFilePattern}`);
     let files = glob.sync(this._config.testsFilePattern, { cwd: targetPath });
     for (const filePath of files) {
+      debug(`processing file: ${filePath}`);
       const extension = path.extname(filePath).toLowerCase();
       if (extension === '.brs') {
         const projectPath = path.dirname(filePath);
