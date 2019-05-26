@@ -15,7 +15,7 @@ let processor: CodeCoverageProcessor;
 let sourcePath = 'src/test/stubProject';
 let targetPath = 'build';
 
-let config: ProcessorConfig = require('../test/testProcessorConfig.json');
+let config: ProcessorConfig = require('../test/testProcessorConfig_coverage.json');
 
 function clearFiles() {
   fs.removeSync(targetPath);
