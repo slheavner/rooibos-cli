@@ -1,6 +1,6 @@
 {
   "name": "rooibos-preprocessor",
-  "version": "3.0.1-beta",
+  "version": "3.0.3-beta",
   "description": "preprocessor for roku brightscript and scenegraph projects, using rooibos",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "babel-cli": "^6.26.0",
+    "brs": "latest",
     "commander": "latest",
     "debug": "latest",
     "es2015": "0.0.0",
@@ -33,7 +34,6 @@
     "@types/replace-ext": "0.0.27",
     "babel-core": "^6.26.3",
     "babel-preset-env": "^1.6.1",
-    "brs": "latest",
     "chai": "^4.1.2",
     "chai-subset": "^1.6.0",
     "codecov": "^3.1.0",
@@ -50,7 +50,7 @@
   "scripts": {
     "clean": "rm -rf ./dist && mkdir dist",
     "compile": "npm run clean && tsc -p .",
-    "prepublishOnly": "npm run compile",
+    "prepublishOnly": "npm run build",
     "tslint": "tslint ./src/**/*.ts",
     "build": "npm run compile && cp ./src/lib/*.brs dist/lib && cp ./src/lib/*.xml dist/lib",
     "test": "npm run build && nyc mocha src/**/*.spec.ts --full-trace --bail",

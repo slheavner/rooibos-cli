@@ -1,4 +1,7 @@
 # rooibos-preprocessor CHANGELOG
+## 3.0.3-beta - package publishing woes
+
+## 3.0.2-beta - package publishing woes
 
 ## 3.0.1-beta
 
