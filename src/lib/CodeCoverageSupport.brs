@@ -29,18 +29,21 @@ function RBS_ReportCodeCoverage()
   ? ""
   ? ""
   ? "+++++++++++++++++++++++++++++++++++++++++++"
-  ? "Code Coverage Report (alpha - crude output)"
+  ? "Code Coverage Report"
   ? "+++++++++++++++++++++++++++++++++++++++++++"
   ? ""
   ? "Total Coverage: " ; str(allLinesPercent).trim() ; "% (" ; stri(allLinesHit).trim() ; "/" + stri(allLinesCount).trim() ; ")"
   ? "Files: " ; cc.resolvedMap.count(); "/" ; cc.expectedMap.count()
+  ? ""
   ? "HIT FILES"
+  ? "---------"
   hitFiles.SortBy("percent")
   for i = 0 to hitFiles.count() -1
     ? hitFiles[i].text
   end for
-
+  ? ""
   ? "MISSED FILES"
+  ? "------------"
   for i = 0 to missFiles.count() -1
     ? missFiles[i]
   end for

@@ -7,6 +7,7 @@ import File from './File';
 import FunctionMap from './FunctionMap';
 import { ProcessorConfig } from './ProcessorConfig';
 import { RuntimeConfig } from './RuntimeConfig';
+import { CodeCoverageProcessor } from "./CodeCoverageProcessor";
 
 const debug = Debug('RooibosProcessor');
 
@@ -58,6 +59,11 @@ export class RooibosProcessor {
     debug(`Writing to ${file.fullPath}`);
     file.saveFileContents();
 
+    if (this.config.isRecordingCodeCoverage) {
+      debug(`this is a code coverage build. Adding code coverage calls`);
+      let coverageProcessor = new CodeCoverageProcessor(this.config);
+      coverageProcessor.process();
+    }
     this.reportErrors();
     this.reportWarnings();
   }
