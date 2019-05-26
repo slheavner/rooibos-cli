@@ -4,7 +4,8 @@ import * as path from 'path';
 
 import { expect } from 'chai';
 
-import FileDescriptor from './FileDescriptor';
+import File from './File';
+import { ProcessorConfig } from './ProcessorConfig';
 import { RooibosProcessor } from './RooibosProcessor';
 import { TestCase } from './TestCase';
 
@@ -13,9 +14,9 @@ const chaiSubset = require('chai-subset');
 chai.use(chaiSubset);
 let sourcePath = path.resolve(__dirname, '../test/stubProjectNoSolos');
 let targetPath = path.resolve(__dirname, '../../build');
-let outputPath = path.resolve(__dirname, '../../build');
-let rootPath = path.resolve(__dirname, '../../build');
 let processor: RooibosProcessor;
+
+let config: ProcessorConfig = require('../test/testProcessorConfig.json');
 
 function clearFiles() {
   fs.removeSync(targetPath);
@@ -31,7 +32,7 @@ function copyFiles() {
 
 describe('TestCase tests ', function() {
   beforeEach(() => {
-    processor = new RooibosProcessor(targetPath, rootPath, outputPath);
+    processor = new RooibosProcessor(config);
     processor.processFiles();
   });
 
@@ -42,7 +43,7 @@ describe('TestCase tests ', function() {
     });
 
     it('processes valid test file', () => {
-      let testSuite = processor.runtimeConfig.testSuites[1];
+      let testSuite = processor.runtimeConfig.testSuites[3];
       expect(testSuite).to.not.be.null;
       expect(testSuite.isValid).to.be.true;
       let json: any = testSuite.asJson();

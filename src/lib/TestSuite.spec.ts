@@ -3,8 +3,8 @@ import * as fs from 'fs-extra';
 
 import { expect } from 'chai';
 
-import FileDescriptor from './FileDescriptor';
 import { TestSuiteBuilder } from './TestSuiteBuilder';
+import { makeFile } from './TestUtils';
 
 const chaiSubset = require('chai-subset');
 
@@ -37,8 +37,8 @@ describe('TestSuite tests ', function() {
     });
 
     it('processes valid test file', () => {
-      let fileDescriptor = new FileDescriptor(`build/source/tests/specs`, `VideoModuleTests.brs`, `.brs`);
-      let testSuite = builder.processFile(fileDescriptor);
+      let file = makeFile(`build/source/tests/specs`, `VideoModuleTests.brs`);
+      let testSuite = builder.processFile(file);
       expect(testSuite).to.not.be.null;
       expect(testSuite.isValid).to.be.true;
       let json = testSuite.asJson();

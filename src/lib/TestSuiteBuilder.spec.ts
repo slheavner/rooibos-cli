@@ -3,9 +3,9 @@ import * as fs from 'fs-extra';
 
 import { expect } from 'chai';
 
-import FileDescriptor from './FileDescriptor';
 import { Tag } from './Tag';
 import { TestSuiteBuilder } from './TestSuiteBuilder';
+import { makeFile } from './TestUtils';
 
 const chaiSubset = require('chai-subset');
 
@@ -83,47 +83,47 @@ describe('TestSuiteBuilder tests ', function() {
     });
 
     it('ignores empty file contents', () => {
-      let fileDescriptor = new FileDescriptor(`source`, `test.brs`, `.brs`);
-      fileDescriptor.setFileContents('');
-      let testSuite = builder.processFile(fileDescriptor);
+      let file = makeFile(`source`, `test.brs`);
+      file.setFileContents('');
+      let testSuite = builder.processFile(file);
       expect(testSuite).to.not.be.null;
       expect(testSuite.isValid).to.be.false;
     });
 
     it('processes valid test file', () => {
-      let fileDescriptor = new FileDescriptor(specDir, `VideoModuleTests.brs`, `.brs`);
-      let testSuite = builder.processFile(fileDescriptor);
+      let file = makeFile(specDir, `VideoModuleTests.brs`);
+      let testSuite = builder.processFile(file);
       expect(testSuite).to.not.be.null;
       expect(testSuite.isValid).to.be.true;
     });
 
     it('processes solo test suite', () => {
-      let fileDescriptor = new FileDescriptor(specDir, `soloSuite.brs`, `.brs`);
-      let testSuite = builder.processFile(fileDescriptor);
+      let file = makeFile(specDir, `soloSuite.brs`);
+      let testSuite = builder.processFile(file);
       expect(testSuite).to.not.be.null;
       expect(testSuite.isValid).to.be.true;
       expect(testSuite.isSolo).to.be.true;
     });
 
     it('processes solo group', () => {
-      let fileDescriptor = new FileDescriptor(specDir, `soloGroup.brs`, `.brs`);
-      let testSuite = builder.processFile(fileDescriptor);
+      let file = makeFile(specDir, `soloGroup.brs`);
+      let testSuite = builder.processFile(file);
       expect(testSuite).to.not.be.null;
       expect(testSuite.isValid).to.be.true;
       expect(testSuite.hasSoloGroups).to.be.true;
     });
 
     it('processes solo test', () => {
-      let fileDescriptor = new FileDescriptor(specDir, `soloTest.brs`, `.brs`);
-      let testSuite = builder.processFile(fileDescriptor);
+      let file = makeFile(specDir, `soloTest.brs`);
+      let testSuite = builder.processFile(file);
       expect(testSuite).to.not.be.null;
       expect(testSuite.isValid).to.be.true;
       expect(testSuite.hasSoloTests).to.be.true;
     });
 
     it('simple params', () => {
-      let fileDescriptor = new FileDescriptor(specDir, `paramsTest.brs`, `.brs`);
-      let testSuite = builder.processFile(fileDescriptor);
+      let file = makeFile(specDir, `paramsTest.brs`);
+      let testSuite = builder.processFile(file);
       expect(testSuite).to.not.be.null;
       expect(testSuite.isValid).to.be.true;
       expect(testSuite.itGroups[0].testCases[0].expectedNumberOfParams).to.equal(2);
@@ -134,8 +134,8 @@ describe('TestSuiteBuilder tests ', function() {
     });
 
     it('complex params', () => {
-      let fileDescriptor = new FileDescriptor(specDir, `complexParamsTests.brs`, `.brs`);
-      let testSuite = builder.processFile(fileDescriptor);
+      let file = makeFile(specDir, `complexParamsTests.brs`);
+      let testSuite = builder.processFile(file);
       expect(testSuite).to.not.be.null;
       expect(testSuite.isValid).to.be.true;
       expect(testSuite.itGroups[0].soloTestCases[0].expectedNumberOfParams).to.equal(3);
@@ -143,6 +143,16 @@ describe('TestSuiteBuilder tests ', function() {
 
       expect(testSuite.itGroups[0].soloTestCases[1].expectedNumberOfParams).to.equal(3);
       expect(testSuite.itGroups[0].soloTestCases[1].rawParams.length).to.equal(3);
+    });
+
+    it('url params bug #40', () => {
+      let file = makeFile(specDir, `urlParams.brs`);
+      let testSuite = builder.processFile(file);
+      expect(testSuite).to.not.be.null;
+      expect(testSuite.isValid).to.be.true;
+      expect(testSuite.itGroups[0].testCases[0].expectedNumberOfParams).to.equal(3);
+      expect(testSuite.itGroups[0].testCases[0].rawParams.length).to.equal(3);
+      expect(testSuite.itGroups[0].testCases[0].rawParams[1].type).to.equal('http://101.rooibos.com');
     });
 
   });

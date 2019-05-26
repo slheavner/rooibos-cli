@@ -24,3 +24,13 @@ function CPT_getVideosRealExample_basic(videoType, returnedJson, typeName) as vo
 
   m.AssertArrayContainsSubset(videos, returnedJson)
 end function
+
+'@Test withUrl
+'@Params[{isClip:false}, {type:"http://101.rooibos.com"}, "show"]
+function CPT_withUrl(videoType, returnedJson, typeName) as void
+  getjsonMock = m.expectOnce(m.httpService, "getJson", [m.ignoreValue, videoType], returnedJson, true)
+
+  videos = m.module.getVideosRealExample(videoType)
+
+  m.AssertArrayContainsSubset(videos, returnedJson)
+end function

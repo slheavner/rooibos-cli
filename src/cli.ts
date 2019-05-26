@@ -1,4 +1,7 @@
 #!/usr/bin/env node
+import { inspect } from 'util';
+
+import { createProcessorConfig, ProcessorConfig } from './lib/ProcessorConfig';
 import { RooibosProcessor } from './lib/RooibosProcessor';
 const program = require('commander');
 const pkg = require('../package.json');
@@ -10,9 +13,11 @@ program
 
 program
 .option('-c, --config [path]', 'Specify a config file to use.')
-.option('-t, --testPath [path]', 'Path to test spec directory.')
-.option('-r, --rootPath [path]', 'Path to root directory.')
-.option('-o, --outputPath [path]', 'Path to output directory. This is where the test map file will be written to.')
+.option('-p, --projectPath [path]', 'Path to test spec directory.')
+.option('-t, --testsFilePattern []', 'Array of globs corresponding to test files to include. Relative to projectPath')
+.option('-v, --isRecordingCodeCoverage []', 'Indicates that we want to generate code coverage')
+.option('-s, --sourceFilePattern []', 'Array of globs corresponding to files to include in code coverage. Relative to projectPath')
+.option('-o, --outputPath [path]', 'Path to package output directory. This is where generated files, required for execution will be copied to. Relative to projectPath, defaults to source')
 .description(`
   processes a brightscript SceneGraph project and creates json data structures
   which can be used by the rooibos unit testing framework, or vsCode IDE
@@ -21,31 +26,27 @@ program
 .action((options) => {
   console.log(`Processing....`);
   console.time('Finished in:');
-  let conf;
+  let config: ProcessorConfig;
+  let configJson = {};
 
   if (options.config) {
     try {
-      conf = require(path.resolve(process.cwd(), options.config));
+      configJson = require(path.resolve(process.cwd(), options.config));
     } catch (e) {
       console.log(e.message);
       process.exit(1);
     }
-
-    if (!conf.testPath) {
-      console.log(`The config file you specified does not define the required "testPath" key.
-Please read the docs for usage details https://github.com/georgejecook/rooibos/blob/master/docs/index.md#rooibosc`);
-    }
   } else if (options.testPath) {
-    conf = {
-      testPath: options.testPath,
-      rootPath: options.rootPath || '',
-      outputPath: options.outputPath || options.testPath
+    configJson = {
+      projectPath: options.projectPath,
+      testsFilePattern: options.testsFilePattern,
+      isRecordingCodeCoverage: options.isRecordingCodeCoverage,
+      sourceFilePattern: options.sourceFilePattern,
+      outputPath: options.outputPath,
     };
-  } else {
-    console.warn('You must specify either a config file or a test spec directory');
   }
 
-  let processor = new RooibosProcessor(conf.testPath, conf.rootPath, conf.outputPath);
+  let processor = new RooibosProcessor(createProcessorConfig(configJson));
   processor.processFiles();
 
   console.timeEnd('Finished in:');

@@ -1,54 +1,51 @@
 import * as Debug from 'debug';
 
-import FileDescriptor from './FileDescriptor';
+import * as path from 'path';
+
+import { CodeCoverageProcessor } from './CodeCoverageProcessor';
+import { getFeedbackErrors, getFeedbackWarnings } from './Feedback';
+import File from './File';
 import FunctionMap from './FunctionMap';
+import { ProcessorConfig } from './ProcessorConfig';
 import { RuntimeConfig } from './RuntimeConfig';
 
 const debug = Debug('RooibosProcessor');
 
 export class RooibosProcessor {
-  constructor(testsPath: string, rootPath: string, outputPath: string) {
-    if (!testsPath) {
-      throw new Error('testsPath is empty');
+  constructor(config: ProcessorConfig) {
+
+    this._config = config;
+    debug('Running project processor');
+
+    if (!config.projectPath) {
+      throw new Error('Config does not contain projectPath property');
     }
-    this._testsPath = testsPath;
-    this._rootPath = rootPath;
-    this._outputPath = outputPath || this._rootPath;
-    this._warnings = [];
-    this._errors = [];
-    this._mapFilename = `rooibosFunctionMap.brs`;
+    if (!config.sourceFilePattern && config.isRecordingCodeCoverage) {
+      throw new Error('Config does not contain sourceFilePattern regex\'s, ' +
+        'which are required when recording code coverage');
+    }
+    if (!config.testsFilePattern) {
+      throw new Error('Config does not contain testsFilePattern regex\'s');
+    }
   }
 
-  private readonly _testsPath: string;
-  private readonly _rootPath: string;
-  private readonly _outputPath: string;
-  private readonly _mapFilename: string;
-  private readonly _warnings: string[];
-  private readonly _errors: string[];
+  private readonly _config: ProcessorConfig;
 
   public runtimeConfig: RuntimeConfig;
 
-  get errors(): string[] {
-    return this._errors;
-  }
-
-  get warnings(): string[] {
-    return this._warnings;
-  }
-
-  get testsPath(): string {
-    return this._testsPath;
+  get config(): ProcessorConfig {
+    return this._config;
   }
 
   public processFiles() {
-    debug(`Running processor at path ${this.testsPath} `);
+    debug(`Running processor at path ${this.config.projectPath} `);
 
     let outputText = this.createFileHeaderText();
     let functionMap = new FunctionMap();
 
     debug(`Adding runtimeConfig `);
-    this.runtimeConfig = new RuntimeConfig(functionMap);
-    this.runtimeConfig.processPath(this.testsPath, this._rootPath);
+    this.runtimeConfig = new RuntimeConfig(functionMap, this.config);
+    this.runtimeConfig.process();
 
     debug(`Adding function map `);
     outputText += '\n' + functionMap.getFunctionMapText();
@@ -56,27 +53,30 @@ export class RooibosProcessor {
     outputText += '\n' + this.createTestsHeaderText();
     outputText += '\n' + this.runtimeConfig.createTestSuiteLookupFunction();
     outputText += '\n' + this.createFileFooterText();
-
-    const file = new FileDescriptor(this._outputPath, this._mapFilename, '.brs');
+    let mapFileName = path.join(this.config.projectPath, this.config.outputPath, 'rooibosFunctionMap.brs');
+    const file = new File(path.resolve(path.dirname(mapFileName)), path.dirname(mapFileName), path.basename(mapFileName), '.brs');
     file.setFileContents(outputText);
     debug(`Writing to ${file.fullPath}`);
     file.saveFileContents();
 
-    this.errors.concat(this.runtimeConfig.errors);
-    this.warnings.concat(this.runtimeConfig.warnings);
+    if (this.config.isRecordingCodeCoverage) {
+      debug(`this is a code coverage build. Adding code coverage calls`);
+      let coverageProcessor = new CodeCoverageProcessor(this.config);
+      coverageProcessor.process();
+    }
     this.reportErrors();
     this.reportWarnings();
   }
 
   public reportErrors() {
-    if (this.errors.length > 0) {
+    if (getFeedbackErrors().length > 0) {
 
       debug(`
     The following errors occurred during processing:
 
     ======
     `);
-      this.errors.forEach( (errorText) => debug(`[ERROR] ${errorText}`));
+      getFeedbackErrors().forEach( (errorText) => debug(`[ERROR] ${errorText}`));
       debug(`
     ======
     `);
@@ -84,14 +84,14 @@ export class RooibosProcessor {
   }
 
   public reportWarnings() {
-    if (this.warnings.length > 0) {
+    if (getFeedbackWarnings().length > 0) {
 
       debug(`
     The following warnings occurred during processing:
 
     ======
     `);
-      this.warnings.forEach( (errorText) => debug(`[WARN] ${errorText}`));
+      getFeedbackWarnings().forEach( (errorText) => debug(`[WARN] ${errorText}`));
       debug(`
     ======
     `);

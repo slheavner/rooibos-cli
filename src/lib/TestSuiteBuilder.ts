@@ -1,13 +1,13 @@
 import * as Debug from 'debug';
 
-import FileDescriptor from './FileDescriptor';
+import File from './File';
 import { ItGroup } from './ItGroup';
 import { Tag } from './Tag';
 import { TestCase } from './TestCase';
 import { TestSuite } from './TestSuite';
 
 const debug = Debug('RooibosProcessor');
-
+const getJsonFromString = require('./getJsonFromString');
 interface INameCounts {
   [filename: string]: number;
 }
@@ -18,9 +18,7 @@ export class TestSuiteBuilder {
     this.functionNameRegex = new RegExp('^\\s*(function|sub)\\s*([0-9a-z_]*)s*\\(', 'i');
     this.functionSignatureRegex = new RegExp('^\\s*(function|sub)\\s*[0-9a-z_]*s*\\((.*)\\)', 'i');
     this.assertInvocationRegex = new RegExp('^\\s*(m\\.fail|m\\.assert)(.*)\\(', 'i');
-    this.paramsInvalidToNullRegex = /(,|\:|\[)(\s*)(invalid)/g;
     this.functionEndRegex = new RegExp('^\s*(end sub|end function)', 'i');
-    this.badJsonRegex = /(['"])?([a-z0-9A-Z_]+)(['"])?:/g;
     this._warnings = [];
     this._errors = [];
   }
@@ -34,9 +32,7 @@ export class TestSuiteBuilder {
   private functionEndRegex: RegExp;
   private functionNameRegex: RegExp;
   private functionSignatureRegex: RegExp;
-  private paramsInvalidToNullRegex: RegExp;
   private assertInvocationRegex: RegExp;
-  private badJsonRegex: RegExp;
 
   private hasCurrentTestCase: boolean;
   private testCaseParams: object[];
@@ -52,17 +48,18 @@ export class TestSuiteBuilder {
   public get warnings(): string[] {
     return this._warnings;
   }
+
   get maxLinesWithoutSuiteDirective(): number {
     return this._maxLinesWithoutSuiteDirective;
   }
 
-  public processFile(fileDescriptor: FileDescriptor, rootPath?: string): TestSuite {
+  public processFile(file: File): TestSuite {
     'find a marker to indicate this is a test suit';
-    let code = fileDescriptor ? fileDescriptor.fileContents : null;
+    let code = file ? file.getFileContents() : null;
     let testSuite = new TestSuite();
     if (!code || !code.trim()) {
       debug(`no code for current descriptor`);
-      this.errors.push('No code for file' + (fileDescriptor ? fileDescriptor.fullPath : `unknown file`));
+      this.errors.push('No code for file' + (file ? file.fullPath : `unknown file`));
       return testSuite;
     }
     let isTokenItGroup = false;
@@ -79,13 +76,13 @@ export class TestSuiteBuilder {
 
     let nodeTestFileName = '';
     let nextName = '';
-    let name = fileDescriptor.normalizedFileName;
-    let filename = fileDescriptor.normalizedFileName;
+    let name = file.normalizedFileName;
+    let filename = file.normalizedFileName;
     this.reset();
     let currentLocation = '';
     let lines = code.split(/\r?\n/);
-    let filePath = fileDescriptor.fullPath;
-    testSuite.filePath = fileDescriptor.getPackagePath(rootPath || '');
+    let filePath = file.fullPath;
+    testSuite.filePath = file.pkgPath;
     this.groupNameCounts = {};
     this.currentGroup = null;
     this.reset();
@@ -96,7 +93,7 @@ export class TestSuiteBuilder {
       // debug(line);
       if (lineNumber > this._maxLinesWithoutSuiteDirective && !isTestSuite) {
         debug('IGNORING FILE WITH NO TESTSUITE DIRECTIVE : ' + currentLocation);
-        this.warnings.push('Ignoring file with no test suite directive' + fileDescriptor.fullPath);
+        this.warnings.push('Ignoring file with no test suite directive' + file.fullPath);
         break;
       }
       if (this.isTag(line, Tag.TEST_SUITE)) {
@@ -247,7 +244,7 @@ export class TestSuiteBuilder {
           debug(`Found assert before test case was declared! ` + currentLocation);
           this.warnings.push(`Found assert before test case was declared! ` + currentLocation);
         } else {
-          this.currentTestCases.forEach( (tc) => tc.addAssertLine(lineNumber));
+          this.currentTestCases.forEach((tc) => tc.addAssertLine(lineNumber));
         }
         continue;
       } else if (isNextTokenTest && line.match(this.functionEndRegex)) {
@@ -409,8 +406,8 @@ export class TestSuiteBuilder {
     this.hasCurrentTestCase = null;
 
     if (!isTestSuite) {
-      debug('Ignoring non test file ' + fileDescriptor.fullPath);
-      this.errors.push('Ignoring non test file ' + fileDescriptor.fullPath);
+      debug('Ignoring non test file ' + file.fullPath);
+      this.errors.push('Ignoring non test file ' + file.fullPath);
     }
     return testSuite;
   }
@@ -448,9 +445,13 @@ export class TestSuiteBuilder {
   public addParamsForLine(line: string, tag: Tag, lineNumber: number, targetParamLinesArray: number[], targetParamsArray: object[], currentLocation: string) {
     let rawParams = this.getTagText(line, tag);
     try {
-      let jsonParams = JSON.parse(rawParams.replace(this.badJsonRegex, '"$2": ').replace(this.paramsInvalidToNullRegex, '$1$2null'));
-      targetParamsArray.push(jsonParams);
-      targetParamLinesArray.push(lineNumber);
+      let jsonParams = getJsonFromString(rawParams);
+      if (jsonParams) {
+        targetParamsArray.push(jsonParams);
+        targetParamLinesArray.push(lineNumber);
+      } else {
+        this.errors.push(`illegal params found at ${currentLocation}. Not adding test - params were : ${line}`);
+      }
     } catch (e) {
       this.errors.push(`illegal params found at ${currentLocation}. Not adding test - params were : ${line}`);
     }

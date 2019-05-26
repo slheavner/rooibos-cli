@@ -1,9 +1,21 @@
 {
-	"excludedFolders": [
-		"**/rLog",
-		"**/rLogComponents"
+	"projectPath": "build",
+	"sourceFilePattern": [
+		"**/*.brs",
+		"**/*.xml",
+		"!**/tests",
+		"!**/rLog",
+		"!**/rLogComponents",
+		"!**/rooibosDist.brs",
+		"!**/rooibosFunctionMap.brs",
+		"!**/TestsScene.brs",
+		"!**/ThreadUtils.brs"
 	],
-	"exclude": "**/out/**",
-	"sourcePath": "build",
-	"logStyle": "ShortAtStart"
+	"testsFilePattern": [
+		"**/tests/**/*.brs",
+		"!**/rooibosDist.brs",
+		"!**/rooibosFunctionMap.brs",
+		"!**/TestsScene.brs"
+	],
+	"isRecordingCodeCoverage": true
 }
