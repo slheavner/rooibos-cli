@@ -2,12 +2,12 @@ import * as Debug from 'debug';
 
 import * as path from 'path';
 
+import { CodeCoverageProcessor } from './CodeCoverageProcessor';
 import { getFeedbackErrors, getFeedbackWarnings } from './Feedback';
 import File from './File';
 import FunctionMap from './FunctionMap';
 import { ProcessorConfig } from './ProcessorConfig';
 import { RuntimeConfig } from './RuntimeConfig';
-import { CodeCoverageProcessor } from "./CodeCoverageProcessor";
 
 const debug = Debug('RooibosProcessor');
 
