@@ -145,5 +145,15 @@ describe('TestSuiteBuilder tests ', function() {
       expect(testSuite.itGroups[0].soloTestCases[1].rawParams.length).to.equal(3);
     });
 
+    it('url params bug #40', () => {
+      let file = makeFile(specDir, `urlParams.brs`);
+      let testSuite = builder.processFile(file);
+      expect(testSuite).to.not.be.null;
+      expect(testSuite.isValid).to.be.true;
+      expect(testSuite.itGroups[0].testCases[0].expectedNumberOfParams).to.equal(3);
+      expect(testSuite.itGroups[0].testCases[0].rawParams.length).to.equal(3);
+      expect(testSuite.itGroups[0].testCases[0].rawParams[1].type).to.equal('http://101.rooibos.com');
+    });
+
   });
 });

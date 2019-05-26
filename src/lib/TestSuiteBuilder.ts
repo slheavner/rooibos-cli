@@ -7,7 +7,7 @@ import { TestCase } from './TestCase';
 import { TestSuite } from './TestSuite';
 
 const debug = Debug('RooibosProcessor');
-
+const getJsonFromString = require('./getJsonFromString');
 interface INameCounts {
   [filename: string]: number;
 }
@@ -18,9 +18,7 @@ export class TestSuiteBuilder {
     this.functionNameRegex = new RegExp('^\\s*(function|sub)\\s*([0-9a-z_]*)s*\\(', 'i');
     this.functionSignatureRegex = new RegExp('^\\s*(function|sub)\\s*[0-9a-z_]*s*\\((.*)\\)', 'i');
     this.assertInvocationRegex = new RegExp('^\\s*(m\\.fail|m\\.assert)(.*)\\(', 'i');
-    this.paramsInvalidToNullRegex = /(,|\:|\[)(\s*)(invalid)/g;
     this.functionEndRegex = new RegExp('^\s*(end sub|end function)', 'i');
-    this.badJsonRegex = /(['"])?([a-z0-9A-Z_]+)(['"])?:/g;
     this._warnings = [];
     this._errors = [];
   }
@@ -34,9 +32,7 @@ export class TestSuiteBuilder {
   private functionEndRegex: RegExp;
   private functionNameRegex: RegExp;
   private functionSignatureRegex: RegExp;
-  private paramsInvalidToNullRegex: RegExp;
   private assertInvocationRegex: RegExp;
-  private badJsonRegex: RegExp;
 
   private hasCurrentTestCase: boolean;
   private testCaseParams: object[];
@@ -52,6 +48,7 @@ export class TestSuiteBuilder {
   public get warnings(): string[] {
     return this._warnings;
   }
+
   get maxLinesWithoutSuiteDirective(): number {
     return this._maxLinesWithoutSuiteDirective;
   }
@@ -247,7 +244,7 @@ export class TestSuiteBuilder {
           debug(`Found assert before test case was declared! ` + currentLocation);
           this.warnings.push(`Found assert before test case was declared! ` + currentLocation);
         } else {
-          this.currentTestCases.forEach( (tc) => tc.addAssertLine(lineNumber));
+          this.currentTestCases.forEach((tc) => tc.addAssertLine(lineNumber));
         }
         continue;
       } else if (isNextTokenTest && line.match(this.functionEndRegex)) {
@@ -448,9 +445,13 @@ export class TestSuiteBuilder {
   public addParamsForLine(line: string, tag: Tag, lineNumber: number, targetParamLinesArray: number[], targetParamsArray: object[], currentLocation: string) {
     let rawParams = this.getTagText(line, tag);
     try {
-      let jsonParams = JSON.parse(rawParams.replace(this.badJsonRegex, '"$2": ').replace(this.paramsInvalidToNullRegex, '$1$2null'));
-      targetParamsArray.push(jsonParams);
-      targetParamLinesArray.push(lineNumber);
+      let jsonParams = getJsonFromString(rawParams);
+      if (jsonParams) {
+        targetParamsArray.push(jsonParams);
+        targetParamLinesArray.push(lineNumber);
+      } else {
+        this.errors.push(`illegal params found at ${currentLocation}. Not adding test - params were : ${line}`);
+      }
     } catch (e) {
       this.errors.push(`illegal params found at ${currentLocation}. Not adding test - params were : ${line}`);
     }
