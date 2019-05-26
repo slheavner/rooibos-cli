@@ -1,11 +1,11 @@
 # rooibos-preprocessor CHANGELOG
 
-## 2.1.1
+## 3.0.1-beta
 
 ### Added
 
- - code coverage
 ### Changed
+
 
 ### Deprecated
 
@@ -13,8 +13,27 @@
 
 ### Fixed
 
- - runtime error due to bad naming of RuntimeConfig vs RunTimeConfig on Linux operating systems.
+ - problem that stopped code coverage working from gulp builds
 
+
+## 3.0.0-beta
+
+### Added
+
+ - code coverage
+
+### Changed
+
+ - API - now create a config object, and pass that in from js use
+ - command line args
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+ - issues with params parsing - now much more resilient
 
 ## 2.1.1
 

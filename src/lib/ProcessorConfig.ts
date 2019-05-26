@@ -54,6 +54,9 @@ export function createProcessorConfig(config: any): ProcessorConfig {
 
 function getStringArrayFromString(text): string[] | null {
   if (text) {
+    if (Array.isArray(text)) {
+      return text;
+    }
     try {
       let arrayValue = text.split(',');
       return arrayValue;
