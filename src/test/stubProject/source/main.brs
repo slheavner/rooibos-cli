@@ -5,6 +5,13 @@ sub Main(args as dynamic)
 
     if (type(Rooibos__Init) = "Function") then Rooibos__Init(args, SetupGlobals, "AddTestUtils")
     InitScreen()
+
+    if testA = true and testB = true then
+        a = false
+        print "hello"
+    end if
+
+    if a = true then ? "hello" else ? "world"
 end sub
 
 
@@ -21,7 +28,58 @@ function InitScreen() as void
     screen.show()
 
     SetupGlobals(screen)
-    
+    if gotoTest = true
+      goto gotoTestLabel
+    end if
+
+    gotoTestLabel:
+
+    'demonstrate code coverage in nested functions
+    nestedAA = {
+        someValue: {
+            _fun1: function(arg1, arg2)
+                a = 12
+                if a = 12
+                    ? "12"
+                else
+                    ? "not 12"
+                end if
+            end function
+            otherValue: "b"
+        }
+    }
+
+    nestedAA["AAset"] = function()
+        ? "test"
+    end function
+
+    funcs = [
+    "no",
+    function()
+        ? "test"
+    end function,
+    "yes"
+    ]
+
+    funcs[0] = function()
+       ? "test"
+    end function
+    m.callThisWithFunction(function()
+                                  ? "test"
+                               end function)
+    callThisWithFunction(function()
+                                                           ? "test"
+                                                        end function)
+
+    testFunction =function(arg1, arg2)
+          a = 12
+          if a = 12
+              ? "12"
+          else
+              ? "not 12"
+          end if
+      end function
+
     while(true)
         msg = wait(0, m.port)
         msgType = type(msg)

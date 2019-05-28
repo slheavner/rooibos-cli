@@ -35,6 +35,7 @@ export class CodeCoverageProcessor {
   private _filePathMap: Map<number, string>;
   private _expectedCoverageMap: any;
   private _coverageSupportTemplate: any;
+  private visitableLines: Map<number, brs.parser.Stmt.Statement | OtherStatement>;
 
   get config(): ProcessorConfig {
     return this._config;
@@ -75,11 +76,11 @@ export class CodeCoverageProcessor {
     let fileContents = '';
     let lines = file.getFileContents().split(/\r?\n/);
     let coverageMap: Map<number, number> = new Map<number, number>();
-    let visitableLines = new Map<number, brs.parser.Stmt.Statement | OtherStatement>();
-    this.getVisitibleLinesFor(file.ast, visitableLines);
+    this.visitableLines = new Map<number, brs.parser.Stmt.Statement | OtherStatement>();
+    this.getVisitableLinesForStatements(file.ast);
     for (let lineNumber = 0; lineNumber < lines.length; lineNumber++) {
       let line = lines[lineNumber];
-      let statement = visitableLines.get(lineNumber);
+      let statement = this.visitableLines.get(lineNumber);
       let coverageType = CodeCoverageLineType.noCode;
       if (statement) {
         if (statement instanceof brs.parser.Stmt.If) {
@@ -154,50 +155,88 @@ export class CodeCoverageProcessor {
     return `RBS_CC_${this._fileId}_reportLine(${lineNumber.toString().trim()}, ${lineType.toString().trim()})`;
   }
 
-  private getVisitibleLinesFor(statements: ReadonlyArray<brs.parser.Stmt.Statement>, visitableLines: Map<number, brs.parser.Stmt.Statement | OtherStatement>) {
+  private getVisitableLinesForStatements(statements: ReadonlyArray<brs.parser.Stmt.Statement>) {
     for (let statement of statements) {
       if (statement instanceof brs.parser.Stmt.Function) {
-        this.getVisitibleLinesFor(statement.func.body.statements, visitableLines);
+        this.getVisitableLinesForStatements(statement.func.body.statements);
+      } else if (statement instanceof brs.parser.Stmt.Assignment
+        || statement instanceof brs.parser.Stmt.DottedSet
+        || statement instanceof brs.parser.Stmt.IndexedSet
+      ) {
+        this.addStatement(statement);
+        this.getVisitableLinesForExpression([statement.value]);
       } else if (statement instanceof brs.parser.Stmt.If) {
-        if (!visitableLines.has(statement.location.start.line - 1)) {
-          visitableLines.set(statement.location.start.line - 1, statement);
-        }
+        this.addStatement(statement);
         if (statement.thenBranch) {
-          this.getVisitibleLinesFor(statement.thenBranch.statements, visitableLines);
+          this.getVisitableLinesForStatements(statement.thenBranch.statements);
         }
         if (statement.elseIfs) {
           for (let i = 0; i < statement.elseIfs.length; i++) {
             let elseIfStatement = statement.elseIfs[i];
-            this.getVisitibleLinesFor(elseIfStatement.thenBranch.statements, visitableLines);
+            this.getVisitableLinesForStatements(elseIfStatement.thenBranch.statements);
             if (statement.tokens.elseIfs[i]) {
               let elseIfLine = statement.tokens.elseIfs[i].location.start.line - 1;
-              if (!visitableLines.has(elseIfLine)) {
-                visitableLines.set(elseIfLine, new OtherStatement(elseIfStatement));
-              }
+              this.addStatement(new OtherStatement(elseIfStatement), elseIfLine);
             }
           }
         }
         if (statement.elseBranch) {
-          this.getVisitibleLinesFor(statement.elseBranch.statements, visitableLines);
+          this.getVisitableLinesForStatements(statement.elseBranch.statements);
         }
       } else if (statement instanceof brs.parser.Stmt.For
         || statement instanceof brs.parser.Stmt.ForEach
         || statement instanceof brs.parser.Stmt.While) {
 
-        if (!visitableLines.has(statement.location.start.line - 1)) {
-          visitableLines.set(statement.location.start.line - 1, statement);
-        }
-        this.getVisitibleLinesFor(statement.body.statements, visitableLines);
-      } else if (statement instanceof brs.parser.Stmt.Expression
-        || statement instanceof brs.parser.Stmt.Assignment
-        || statement instanceof brs.parser.Stmt.DottedSet
-        || statement instanceof brs.parser.Stmt.IndexedSet
+        this.addStatement(statement);
+        this.getVisitableLinesForStatements(statement.body.statements);
+      } else if (statement instanceof brs.parser.Stmt.Expression) {
+        this.addStatement(statement);
+        this.getVisitableLinesForExpression([statement.expression]);
+      } else if (statement instanceof brs.parser.Stmt.Assignment
         || statement instanceof brs.parser.Stmt.Print
         || statement instanceof brs.parser.Stmt.Return
       ) {
-        if (!visitableLines.has(statement.location.start.line - 1)) {
-          visitableLines.set(statement.location.start.line - 1, statement);
-        }
+        this.addStatement(statement);
+      } else {
+        debug(`unknown statement type`);
+      }
+    }
+  }
+
+  private addStatement(statement: brs.parser.Stmt.Statement | OtherStatement, lineNumber?: number) {
+    if (!lineNumber) {
+      if (!(statement instanceof OtherStatement)) {
+        lineNumber = statement.location.start.line - 1;
+      } else {
+        console.log('addStatement called with otherStatement, without a line number! - OtherStatements types must provide a line number');
+      }
+    }
+    if (!this.visitableLines.has(lineNumber)) {
+      this.visitableLines.set(lineNumber, statement);
+    } else {
+      debug(`line was already registered`);
+    }
+  }
+
+  private getVisitableLinesForExpression(expressions: brs.parser.Expr.Expression[]) {
+    for (let expression of expressions) {
+      if (expression instanceof brs.parser.Expr.AALiteral) {
+        this.getVisitableLinesForExpression(expression.elements.map((e) => e.value));
+      } else if (expression instanceof brs.parser.Expr.ArrayLiteral) {
+        this.getVisitableLinesForExpression(expression.elements);
+      } else if (expression instanceof brs.parser.Expr.Call) {
+        this.getVisitableLinesForExpression(expression.args);
+      } else if (expression instanceof brs.parser.Expr.Binary) {
+        this.getVisitableLinesForExpression([expression.left]);
+        this.getVisitableLinesForExpression([expression.right]);
+      } else if (expression instanceof brs.parser.Expr.Function) {
+        this.getVisitableLinesForStatements(expression.body.statements);
+      } else if (expression instanceof brs.parser.Expr.Literal
+        || expression instanceof brs.parser.Expr.Variable
+        || expression instanceof brs.parser.Expr.DottedGet) {
+        debug('known non-visitable expression: ' + expression.constructor.name);
+      } else {
+        debug(`unknown expression`);
       }
     }
   }

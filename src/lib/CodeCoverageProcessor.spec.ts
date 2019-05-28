@@ -29,7 +29,7 @@ function copyFiles() {
   }
 }
 
-describe('RooibosProcessor tests', function() {
+describe('CodeCoverageProcessor tests', function() {
   beforeEach(() => {
     clearFiles();
     copyFiles();
@@ -57,6 +57,14 @@ describe('RooibosProcessor tests', function() {
       expect(fs.existsSync(filePath)).to.be.true;
       filePath = path.resolve(path.join(targetPath, 'components', 'CodeCoverage.brs'));
       expect(fs.existsSync(filePath)).to.be.true;
+    });
+  });
+
+  describe('specific file with lots of code use cases in it', function() {
+    it('tests processor runs', async () => {
+      config.sourceFilePattern = ['**/main.brs'];
+      await processor.process();
+      console.log('TODO - write tests - currently manually validating!!');
     });
   });
 });

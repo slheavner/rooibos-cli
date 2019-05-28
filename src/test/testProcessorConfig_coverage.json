@@ -3,9 +3,12 @@
 	"sourceFilePattern": [
 		"**/*.brs",
 		"**/*.xml",
+		"!**/tests/**/*.*",
 		"!**/tests",
 		"!**/rLog",
+		"!**/rLog/**/*.*",
 		"!**/rLogComponents",
+		"!**/rLogComponents/**/*.*",
 		"!**/rooibosDist.brs",
 		"!**/rooibosFunctionMap.brs",
 		"!**/TestsScene.brs",

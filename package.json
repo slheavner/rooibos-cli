@@ -1,6 +1,6 @@
 {
   "name": "rooibos-preprocessor",
-  "version": "3.0.3-beta",
+  "version": "3.0.4-beta",
   "description": "preprocessor for roku brightscript and scenegraph projects, using rooibos",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -17,6 +17,7 @@
     "debug": "latest",
     "es2015": "0.0.0",
     "fs-extra": "^5.0.0",
+    "glob-all": "^3.1.0",
     "lodash": "latest",
     "replace-ext": "^1.0.0",
     "splice-string": "^2.0.0",
@@ -39,7 +40,6 @@
     "codecov": "^3.1.0",
     "compare-directories": "^0.1.0",
     "dir-compare": "^1.4.0",
-    "glob-all": "^3.1.0",
     "mocha": "^5.1.1",
     "nyc": "^13.1.0",
     "ts-node": "^7.0.1",

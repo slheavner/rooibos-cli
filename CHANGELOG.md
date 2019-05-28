@@ -1,4 +1,20 @@
 # rooibos-preprocessor CHANGELOG
+
+## 3.0.4-beta
+
+### Added
+  - additional code coverage lines - now tracks functions defined in var, array, associated array and argument assignments
+
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+ - added glob-all to dependencies
+
 ## 3.0.3-beta - package publishing woes
 
 ## 3.0.2-beta - package publishing woes
