@@ -1,4 +1,8 @@
-function RBS_ReportCodeCoverage()
+function RBS_ReportCodeCoverage() as void
+
+  if m.global._rbs_ccn = invalid
+    ? "There was no rooibos code coverage component - not generating coverage report"
+  end if
   ? ""
   ? "...Generating code coverage report"
   ? ""
