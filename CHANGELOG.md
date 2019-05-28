@@ -1,9 +1,37 @@
 # rooibos-preprocessor CHANGELOG
 
-## 3.0.4-beta
+## 3.0.7-beta
 
 ### Added
-  - additional code coverage lines - now tracks functions defined in var, array, associated array and argument assignments
+
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+ - minor issue with coverage support
+ 
+## 3.0.6-beta
+
+### Added
+
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+ - resolves issue where many lines were missing from the expected lines array
+
+## 3.0.5-beta
+
+### Added
+  - support for else if's in coverage
 
 ### Changed
 

@@ -35,7 +35,7 @@ export class CodeCoverageProcessor {
   private _filePathMap: Map<number, string>;
   private _expectedCoverageMap: any;
   private _coverageSupportTemplate: any;
-  private visitableLines: Map<number, brs.parser.Stmt.Statement | OtherStatement>;
+  private visitableLines: Map<number, brs.parser.Stmt.Statement | ElseIfStatement>;
 
   get config(): ProcessorConfig {
     return this._config;
@@ -76,7 +76,7 @@ export class CodeCoverageProcessor {
     let fileContents = '';
     let lines = file.getFileContents().split(/\r?\n/);
     let coverageMap: Map<number, number> = new Map<number, number>();
-    this.visitableLines = new Map<number, brs.parser.Stmt.Statement | OtherStatement>();
+    this.visitableLines = new Map<number, brs.parser.Stmt.Statement | ElseIfStatement>();
     this.getVisitableLinesForStatements(file.ast);
     for (let lineNumber = 0; lineNumber < lines.length; lineNumber++) {
       let line = lines[lineNumber];
@@ -91,10 +91,13 @@ export class CodeCoverageProcessor {
           let restofLineText = line.substring(conditionEndPos);
           line = `${line.substr(0, conditionStartPos)} ${funcCall} and (${conditionText}) ${restofLineText}`;
           coverageType = CodeCoverageLineType.condition;
-        } else if (statement instanceof OtherStatement) {
-          debug(`ignoring unsupported statments type`, statement);
-          //is it an else if?
-          //ignoring for now
+        } else if (statement instanceof ElseIfStatement) {
+          let conditionStartPos = statement.condition.location.start.column;
+          let conditionEndPos = statement.condition.location.end.column;
+          let funcCall = this.getFuncCallText(lineNumber, CodeCoverageLineType.condition);
+          let conditionText = line.substr(conditionStartPos, conditionEndPos - conditionStartPos);
+          let restofLineText = line.substring(conditionEndPos);
+          line = `${line.substr(0, conditionStartPos)} ${funcCall} and (${conditionText}) ${restofLineText}`;
           coverageType = CodeCoverageLineType.condition;
         } else {
           //all types that can be prefixed with the funcall and a colon (i.e for, while, return foreach, assign)
@@ -110,19 +113,19 @@ export class CodeCoverageProcessor {
         line += '\n';
       }
       fileContents += line;
-      if (coverageType !== CodeCoverageLineType.noCode) {
-        coverageMap[lineNumber] = coverageType;
+      if (coverageType > CodeCoverageLineType.noCode) {
+        coverageMap.set(lineNumber, coverageType);
       }
     }
-    this._expectedCoverageMap[this._fileId.toString().trim()] = coverageMap;
+    this._expectedCoverageMap[this._fileId.toString().trim()] = Array.from(coverageMap);
     this._filePathMap[this._fileId] = file.pkgUri;
-    fileContents += this.getBrsAPIText(file, coverageMap);
+    fileContents += this.getBrsAPIText();
     file.setFileContents(fileContents);
     debug(`Writing to ${file.fullPath}`);
     file.saveFileContents();
   }
 
-  public getBrsAPIText(file: File, coverageMap: Map<number, number>): string {
+  public getBrsAPIText(): string {
     let template = this._coverageBrsTemplate.replace(/\#ID\#/g, this._fileId.toString().trim());
     return template;
   }
@@ -176,7 +179,7 @@ export class CodeCoverageProcessor {
             this.getVisitableLinesForStatements(elseIfStatement.thenBranch.statements);
             if (statement.tokens.elseIfs[i]) {
               let elseIfLine = statement.tokens.elseIfs[i].location.start.line - 1;
-              this.addStatement(new OtherStatement(elseIfStatement), elseIfLine);
+              this.addStatement(new ElseIfStatement(elseIfStatement.condition), elseIfLine);
             }
           }
         }
@@ -203,9 +206,9 @@ export class CodeCoverageProcessor {
     }
   }
 
-  private addStatement(statement: brs.parser.Stmt.Statement | OtherStatement, lineNumber?: number) {
+  private addStatement(statement: brs.parser.Stmt.Statement | ElseIfStatement, lineNumber?: number) {
     if (!lineNumber) {
-      if (!(statement instanceof OtherStatement)) {
+      if (!(statement instanceof ElseIfStatement)) {
         lineNumber = statement.location.start.line - 1;
       } else {
         console.log('addStatement called with otherStatement, without a line number! - OtherStatements types must provide a line number');
@@ -242,8 +245,8 @@ export class CodeCoverageProcessor {
   }
 }
 
-class OtherStatement {
-  constructor(public statement: any) {
+class ElseIfStatement {
+  constructor(public condition: any) {
 
   }
 }

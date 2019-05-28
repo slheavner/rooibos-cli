@@ -63,6 +63,8 @@ export class RooibosProcessor {
       debug(`this is a code coverage build. Adding code coverage calls`);
       let coverageProcessor = new CodeCoverageProcessor(this.config);
       coverageProcessor.process();
+    } else {
+      debug(`this is NOT a code coverage build.`);
     }
     this.reportErrors();
     this.reportWarnings();
