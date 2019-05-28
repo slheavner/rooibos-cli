@@ -19,6 +19,8 @@ export class TestSuiteBuilder {
     this.functionSignatureRegex = new RegExp('^\\s*(function|sub)\\s*[0-9a-z_]*s*\\((.*)\\)', 'i');
     this.assertInvocationRegex = new RegExp('^\\s*(m\\.fail|m\\.assert)(.*)\\(', 'i');
     this.functionEndRegex = new RegExp('^\s*(end sub|end function)', 'i');
+    this.paramsInvalidToNullRegex = /(,|\:|\[)(\s*)(invalid)/g;
+
     this._warnings = [];
     this._errors = [];
   }
@@ -26,6 +28,7 @@ export class TestSuiteBuilder {
   private readonly _warnings: string[];
   private readonly _errors: string[];
 
+  private paramsInvalidToNullRegex: RegExp;
   private _maxLinesWithoutSuiteDirective: number;
   private groupNameCounts: INameCounts;
   public currentGroup?: ItGroup;
@@ -445,7 +448,8 @@ export class TestSuiteBuilder {
   public addParamsForLine(line: string, tag: Tag, lineNumber: number, targetParamLinesArray: number[], targetParamsArray: object[], currentLocation: string) {
     let rawParams = this.getTagText(line, tag);
     try {
-      let jsonParams = getJsonFromString(rawParams);
+      let jsonText = rawParams.replace(this.paramsInvalidToNullRegex, '$1$2null');
+      let jsonParams = getJsonFromString(jsonText);
       if (jsonParams) {
         targetParamsArray.push(jsonParams);
         targetParamLinesArray.push(lineNumber);
