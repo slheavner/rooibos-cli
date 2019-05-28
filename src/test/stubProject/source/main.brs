@@ -12,6 +12,16 @@ sub Main(args as dynamic)
     end if
 
     if a = true then ? "hello" else ? "world"
+
+    if a = true or b = true
+        ? "firs"
+    else if b = c
+        ? "else if 1"
+    else if a = false and c = true
+        ? "else if 2"
+    else
+        ? "else"
+    end if
 end sub
 
 
