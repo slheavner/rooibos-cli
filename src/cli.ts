@@ -18,6 +18,8 @@ program
 .option('-v, --isRecordingCodeCoverage [value]', 'Indicates that we want to generate code coverage')
 .option('-s, --sourceFilePattern [value]', 'Array of globs corresponding to files to include in code coverage. Relative to projectPath')
 .option('-o, --outputPath [path]', 'Path to package output directory. This is where generated files, required for execution will be copied to. Relative to projectPath, defaults to source')
+.option('-f, --showFailuresOnly', 'Show results for failed tests, if any. If none fail, then all results are shown')
+.option('-F, --failFast', 'Test execution will stop at the first failure')
 .description(`
   processes a brightscript SceneGraph project and creates json data structures
   which can be used by the rooibos unit testing framework, or vsCode IDE
@@ -42,6 +44,8 @@ program
       isRecordingCodeCoverage: options.isRecordingCodeCoverage,
       sourceFilePattern: options.sourceFilePattern,
       outputPath: options.outputPath,
+      showFailuresOnly: options.showFailuresOnly,
+      failFast: options.failFast
     };
   }
 

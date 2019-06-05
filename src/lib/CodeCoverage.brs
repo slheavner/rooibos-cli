@@ -1,5 +1,8 @@
 function init()
   m.resolvedMap = {}
+  m.top.observeField("entry", "onEntryChange")
+  m.top.observeField("save", "onSave")
+
 end function
 
 function setExpectedMap()

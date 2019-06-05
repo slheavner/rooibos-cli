@@ -1,5 +1,24 @@
 # rooibos-preprocessor CHANGELOG
 
+## 3.0.8 - out of beta - yay!
+
+### Added
+
+  - loads runtime config from a rooibosC generated function which
+    - enables fail fast mode
+    - enables show only failures mode.
+
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+  - crash when any function calls asString on an aa that has mocked functions
+  - race crash as reported here https://github.com/georgejecook/rooibos/issues/53
+
 ## 3.0.7-beta
 
 ### Added

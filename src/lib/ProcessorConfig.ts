@@ -16,6 +16,8 @@ export interface ProcessorConfig {
   testsFilePattern: string[];
   isRecordingCodeCoverage: boolean;
   logLevel: ProcessorLogLevel;
+  showFailuresOnly: boolean;
+  failFast: boolean;
 }
 
 export function createProcessorConfig(config: any): ProcessorConfig {
@@ -25,6 +27,8 @@ export function createProcessorConfig(config: any): ProcessorConfig {
   console.log('parsing config ' + inspect(processorConfig));
 
   config.isRecordingCodeCoverage = config.isRecordingCodeCoverage === true;
+  config.showFailuresOnly = config.showFailuresOnly === true;
+  config.failFast = config.failFast === true;
   config.outputPath = config.outputPath || 'source';
 
   if (!config.projectPath) {

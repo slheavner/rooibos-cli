@@ -4,8 +4,8 @@
 >
     <script type="text/brightscript" uri="CodeCoverage.brs" />
     <interface>
-        <field id="entry" type="assocarray" onChange="onEntryChange" />
-        <field id="save" type="boolean" onChange="onSave" />
+        <field id="entry" type="assocarray" />
+        <field id="save" type="boolean" />
         <field id="expectedMap" type="assocarray" />
         <field id="resolvedMap" type="assocarray" />
         <field id="filePathMap" type="assocarray" />
