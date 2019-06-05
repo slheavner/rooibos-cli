@@ -49,6 +49,7 @@ export class RooibosProcessor {
 
     debug(`Adding function map `);
     outputText += '\n' + functionMap.getFunctionMapText();
+    outputText += '\n' + this.getRuntimeConfigText();
 
     outputText += '\n' + this.createTestsHeaderText();
     outputText += '\n' + this.runtimeConfig.createTestSuiteLookupFunction();
@@ -122,6 +123,18 @@ export class RooibosProcessor {
     '***************************************************
     ' Unit test suites defitintions
     '***************************************************
+    `;
+  }
+
+  public getRuntimeConfigText(): string {
+    return `
+
+    function RBSFM_getRuntimeConfig()
+        return {
+          "failFast": ${this.config.failFast}
+          "showOnlyFailures": ${this.config.showFailuresOnly}
+          }
+    end function
     `;
   }
 }
