@@ -39,7 +39,7 @@ export class RuntimeConfig {
   public process() {
     //TODO - make async.
     //TODO - cachetimestamps for files - for performance
-    let testSuiteBuilder = new TestSuiteBuilder(50);
+    let testSuiteBuilder = new TestSuiteBuilder(50, this._config.legacySupport);
     const glob = require('glob-all');
     let targetPath = path.resolve(this._config.projectPath);
     debug(`processing files at path ${targetPath} with pattern ${this._config.testsFilePattern}`);
@@ -73,6 +73,22 @@ export class RuntimeConfig {
     }
 
     this.updateIncludedFlags();
+  }
+
+  public createIgnoredTestsInfoFunction(): string {
+    let text = `
+    function RBSFM_getIgnoredTestInfo()
+        return {
+          "count": ${this.ignoredCount}
+          "items":[
+        `;
+    this.ignoredTestNames.forEach((ignoredText) => {
+      text += `"${ignoredText}",\n`;
+    });
+    text += `
+      ]}
+    end function\n`;
+    return text;
   }
 
   public createTestSuiteLookupFunction(): string {

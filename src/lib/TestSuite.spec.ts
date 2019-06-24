@@ -27,7 +27,7 @@ function copyFiles() {
 
 describe('TestSuite tests ', function() {
   beforeEach(() => {
-    builder = new TestSuiteBuilder(50);
+    builder = new TestSuiteBuilder(50, false);
   });
 
   describe('asJson', function() {

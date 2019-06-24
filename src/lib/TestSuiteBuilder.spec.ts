@@ -29,7 +29,7 @@ function copyFiles() {
 
 describe('TestSuiteBuilder tests ', function() {
   beforeEach(() => {
-    builder = new TestSuiteBuilder(50);
+    builder = new TestSuiteBuilder(50, false);
   });
 
   describe('Initialization', function() {
@@ -129,6 +129,7 @@ describe('TestSuiteBuilder tests ', function() {
       expect(testSuite.itGroups[0].testCases[0].expectedNumberOfParams).to.equal(2);
       expect(testSuite.itGroups[0].testCases[0].rawParams.length).to.equal(2);
 
+      expect(testSuite.itGroups[0].filename).to.equal('paramsTest');
       expect(testSuite.itGroups[0].testCases[1].expectedNumberOfParams).to.equal(2);
       expect(testSuite.itGroups[0].testCases[1].rawParams.length).to.equal(2);
     });
@@ -153,6 +154,112 @@ describe('TestSuiteBuilder tests ', function() {
       expect(testSuite.itGroups[0].testCases[0].expectedNumberOfParams).to.equal(3);
       expect(testSuite.itGroups[0].testCases[0].rawParams.length).to.equal(3);
       expect(testSuite.itGroups[0].testCases[0].rawParams[1].type).to.equal('http://101.rooibos.com');
+    });
+
+    describe('legacy support', function() {
+      beforeEach(() => {
+        builder = new TestSuiteBuilder(50, true);
+      });
+
+      it('parsing of tests and asserts', () => {
+        let file = makeFile(specDir, `legacyFrameworkTests.brs`);
+        let testSuite = builder.processFile(file);
+
+        expect(testSuite).to.not.be.null;
+        expect(testSuite.isValid).to.be.true;
+        expect(testSuite.hasSoloTests).to.be.false;
+        expect(testSuite.isSolo).to.be.false;
+        expect(testSuite.hasIgnoredTests).to.be.false;
+        expect(testSuite.isIgnored).to.be.false;
+        expect(testSuite.name).to.equal('MainTestSuite');
+        expect(testSuite.itGroups[0].filename).to.equal('legacyFrameworkTests');
+        expect(testSuite.itGroups[0].testCases.length).to.equal(7);
+        expect(testSuite.itGroups[0].testCases[2].funcName).to.equal('testcase__main_checkstreamformattype');
+        expect(testSuite.itGroups[0].testCases[2].name).to.equal('CheckStreamFormatType');
+        expect(testSuite.itGroups[0].testCases[2].lineNumber).to.equal(79);
+        expect(testSuite.itGroups[0].testCases[2].assertLineNumberMap['0']).to.equal(81);
+        expect(testSuite.itGroups[0].testCases[2].assertLineNumberMap['1']).to.equal(82);
+        expect(testSuite.itGroups[0].testCases[2].assertLineNumberMap['2']).to.equal(83);
+      });
+
+      it('parsing of ignored test', () => {
+        let file = makeFile(specDir, `legacyFrameworkTests_isIgnored.brs`);
+        let testSuite = builder.processFile(file);
+
+        expect(testSuite).to.not.be.null;
+        expect(testSuite.isValid).to.be.true;
+        expect(testSuite.hasSoloTests).to.be.false;
+        expect(testSuite.isSolo).to.be.false;
+        expect(testSuite.hasIgnoredTests).to.be.false;
+        expect(testSuite.isIgnored).to.be.true;
+        expect(testSuite.name).to.equal('MainTestSuite');
+        expect(testSuite.itGroups[0].testCases.length).to.equal(7);
+      });
+
+      it('parsing of solo', () => {
+        let file = makeFile(specDir, `legacyFrameworkTests_isSolo.brs`);
+        let testSuite = builder.processFile(file);
+
+        expect(testSuite).to.not.be.null;
+        expect(testSuite.isValid).to.be.true;
+        expect(testSuite.hasSoloTests).to.be.false;
+        expect(testSuite.isSolo).to.be.true;
+        expect(testSuite.hasIgnoredTests).to.be.false;
+        expect(testSuite.isIgnored).to.be.false;
+        expect(testSuite.name).to.equal('MainTestSuite');
+        expect(testSuite.itGroups[0].testCases.length).to.equal(7);
+      });
+
+      it('parsing of solo tests', () => {
+        let file = makeFile(specDir, `legacyFrameworkTests_solos.brs`);
+        let testSuite = builder.processFile(file);
+
+        expect(testSuite).to.not.be.null;
+        expect(testSuite.isValid).to.be.true;
+        expect(testSuite.hasSoloTests).to.be.true;
+        expect(testSuite.isSolo).to.be.true;
+        expect(testSuite.hasIgnoredTests).to.be.false;
+        expect(testSuite.isIgnored).to.be.false;
+        expect(testSuite.name).to.equal('MainTestSuite');
+        expect(testSuite.itGroups[0].testCases.length).to.equal(5);
+        expect(testSuite.itGroups[0].soloTestCases.length).to.equal(2);
+        expect(testSuite.itGroups[0].soloTestCases[1].funcName).to.equal('testcase__main_checkstreamformattype');
+        expect(testSuite.itGroups[0].soloTestCases[1].name).to.equal('CheckStreamFormatType');
+        expect(testSuite.itGroups[0].soloTestCases[1].lineNumber).to.equal(103);
+      });
+
+      it('parsing of ignored tests', () => {
+        let file = makeFile(specDir, `legacyFrameworkTests_ignoredTests.brs`);
+        let testSuite = builder.processFile(file);
+
+        expect(testSuite).to.not.be.null;
+        expect(testSuite.isValid).to.be.true;
+        expect(testSuite.hasSoloTests).to.be.false;
+        expect(testSuite.isSolo).to.be.false;
+        expect(testSuite.hasIgnoredTests).to.be.true;
+        expect(testSuite.isIgnored).to.be.false;
+        expect(testSuite.name).to.equal('MainTestSuite');
+        expect(testSuite.itGroups[0].testCases.length).to.equal(5);
+        expect(testSuite.itGroups[0].soloTestCases.length).to.equal(0);
+        expect(testSuite.itGroups[0].ignoredTestCases.length).to.equal(2);
+        expect(testSuite.itGroups[0].ignoredTestCases[0].funcName).to.equal('testcase__main_checkdatacount');
+        expect(testSuite.itGroups[0].ignoredTestCases[0].name).to.equal('CheckDataCount');
+        expect(testSuite.itGroups[0].ignoredTestCases[1].funcName).to.equal('testcase__main_checkstreamformattype');
+        expect(testSuite.itGroups[0].ignoredTestCases[1].name).to.equal('CheckStreamFormatType');
+      });
+
+      it('parsing of setup and teardown', () => {
+        let file = makeFile(specDir, `legacyFrameworkTests_setupAndTearDown.brs`);
+        let testSuite = builder.processFile(file);
+
+        expect(testSuite).to.not.be.null;
+        expect(testSuite.isValid).to.be.true;
+        expect(testSuite.name).to.equal('MainTestSuite');
+        expect(testSuite.setupFunctionName).to.equal('MainTestSuite__SetUp');
+        expect(testSuite.tearDownFunctionName).to.equal('MainTestSuite__TearDown');
+        expect(testSuite.itGroups[0].testCases.length).to.equal(7);
+      });
+
     });
 
   });

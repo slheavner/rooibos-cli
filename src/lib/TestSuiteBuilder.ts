@@ -8,12 +8,13 @@ import { TestSuite } from './TestSuite';
 
 const debug = Debug('RooibosProcessor');
 const getJsonFromString = require('./getJsonFromString');
+
 interface INameCounts {
   [filename: string]: number;
 }
 
 export class TestSuiteBuilder {
-  constructor(maxLinesWithoutSuiteDirective: number) {
+  constructor(maxLinesWithoutSuiteDirective: number, isLegacyTestsSupported: boolean) {
     this._maxLinesWithoutSuiteDirective = maxLinesWithoutSuiteDirective;
     this.functionNameRegex = new RegExp('^\\s*(function|sub)\\s*([0-9a-z_]*)s*\\(', 'i');
     this.functionSignatureRegex = new RegExp('^\\s*(function|sub)\\s*[0-9a-z_]*s*\\((.*)\\)', 'i');
@@ -23,6 +24,7 @@ export class TestSuiteBuilder {
 
     this._warnings = [];
     this._errors = [];
+    this._isLegacyTestsSupported = isLegacyTestsSupported;
   }
 
   private readonly _warnings: string[];
@@ -30,6 +32,7 @@ export class TestSuiteBuilder {
 
   private paramsInvalidToNullRegex: RegExp;
   private _maxLinesWithoutSuiteDirective: number;
+  private _isLegacyTestsSupported: boolean;
   private groupNameCounts: INameCounts;
   public currentGroup?: ItGroup;
   private functionEndRegex: RegExp;
@@ -57,7 +60,6 @@ export class TestSuiteBuilder {
   }
 
   public processFile(file: File): TestSuite {
-    'find a marker to indicate this is a test suit';
     let code = file ? file.getFileContents() : null;
     let testSuite = new TestSuite();
     if (!code || !code.trim()) {
@@ -95,8 +97,7 @@ export class TestSuiteBuilder {
       let line = lines[lineNumber - 1];
       // debug(line);
       if (lineNumber > this._maxLinesWithoutSuiteDirective && !isTestSuite) {
-        debug('IGNORING FILE WITH NO TESTSUITE DIRECTIVE : ' + currentLocation);
-        this.warnings.push('Ignoring file with no test suite directive' + file.fullPath);
+        debug('NO TESTSUITE DIRECTIVE : ' + currentLocation);
         break;
       }
       if (this.isTag(line, Tag.TEST_SUITE)) {
@@ -409,9 +410,20 @@ export class TestSuiteBuilder {
     this.hasCurrentTestCase = null;
 
     if (!isTestSuite) {
-      debug('Ignoring non test file ' + file.fullPath);
-      this.errors.push('Ignoring non test file ' + file.fullPath);
+      this.warnings.push('no test suite directive for file ' + file.fullPath);
+      if (this._isLegacyTestsSupported) {
+        debug('legacy tests are supported - checking if this file contains legacy tests');
+        testSuite = new TestSuite();
+        testSuite.filePath = file.pkgPath;
+        isTestSuite = this.processLegacyFile(file, testSuite);
+      }
     }
+
+    if (!isTestSuite) {
+      this.errors.push('Ignoring non test file ' + file.fullPath);
+      debug('Ignoring non test file ' + file.fullPath);
+    }
+
     return testSuite;
   }
 
@@ -460,4 +472,140 @@ export class TestSuiteBuilder {
       this.errors.push(`illegal params found at ${currentLocation}. Not adding test - params were : ${line}`);
     }
   }
+
+  public processLegacyFile(file: File, testSuite: TestSuite): boolean {
+    let code = file ? file.getFileContents() : null;
+
+    this.reset();
+    let currentLocation = '';
+    let lines = code.split(/\r?\n/);
+    let filePath = file.fullPath;
+    testSuite.filePath = file.pkgPath;
+    this.groupNameCounts = {};
+    this.currentGroup = null;
+    this.reset();
+    this.currentTestCases = [];
+
+    let testSuiteFunctionNameRegex = new RegExp('^\\s*(function|sub)\\s*testSuite_([0-9a-z\\_]*)\\s*\\(', 'i');
+    let testCaseFunctionNameRegex = new RegExp('^\\s*(function|sub)\\s*testCase_([0-9a-z\\_]*)\\s*\\(', 'i');
+    let assertInvocationRegex = new RegExp('^.*(m.fail|m.Fail|m.assert|m.Assert)(.*)', 'i');
+    let functionEndRegex = new RegExp('^\\s*(end sub|end function)', 'i');
+
+    let testSuiteNameRegex = new RegExp('^\\s*this\\.name\\s*=\\s*"([0-9a-z_]*)"', 'i');
+    let setupRegex = new RegExp('^\\s*this\\.setup\\s*=\\s*([a-z_0-9]*)', 'i');
+    let teardownRegex = new RegExp('^\\s*this\\.tearDown\\s*=\\s*([a-z_0-9]*)', 'i');
+    let addTestregex = new RegExp('^\\s*this\\.addTest\\s*\\(\\s*"([0-9a-z_]*)"\\s*,\\s*([0-9a-z_]*)s*', 'i');
+
+    let isTestSuite = false;
+    let isInInitFunction = false;
+    let isSolo = false;
+    let isIgnore = false;
+    let testCaseMap = new Map<string, string>();
+
+    for (let lineNumber = 1; lineNumber <= lines.length; lineNumber++) {
+      currentLocation = filePath + ':' + lineNumber.toString();
+      let line = lines[lineNumber - 1];
+      // debug(line);
+      if (lineNumber > this._maxLinesWithoutSuiteDirective && !isTestSuite) {
+        debug('IGNORING FILE WITH NO LEGACY TESTS AVAILABLE : ' + currentLocation);
+        this.warnings.push('Ignoring file with no legacy tests' + file.fullPath);
+        break;
+      }
+
+      if (line.match(testSuiteFunctionNameRegex)) {
+        isTestSuite = true;
+        isInInitFunction = true;
+        testSuite.isLegacy = true;
+        testSuite.isValid = true;
+        if (isIgnore) {
+          testSuite.isIgnored = true;
+        }
+        if (isSolo) {
+          testSuite.isSolo = true;
+        }
+        continue;
+      } else if (this.isTag(line, Tag.SOLO)) {
+        isSolo = true;
+        continue;
+      } else if (this.isTag(line, Tag.IGNORE)) {
+        isIgnore = true;
+        continue;
+      } else if (line.match(setupRegex)) {
+        let match = line.match(setupRegex);
+        testSuite.setupFunctionName = match[1];
+      } else if (line.match(teardownRegex)) {
+        let match = line.match(teardownRegex);
+        testSuite.tearDownFunctionName = match[1];
+      } else if (line.match(functionEndRegex)) {
+        if (isInInitFunction) {
+          this.currentGroup = new ItGroup('LEGACY TESTS', false, false, file.normalizedFileName);
+
+          this.currentGroup.setupFunctionName = testSuite.setupFunctionName;
+          this.currentGroup.isLegacy = true;
+          testSuite.itGroups.push(this.currentGroup);
+          isInInitFunction = false;
+          isIgnore = false;
+          isSolo = false;
+        }
+      } else if (line.match(testSuiteNameRegex)) {
+        testSuite.name = line.match(testSuiteNameRegex)[1];
+      } else if (line.match(addTestregex)) {
+        if (!isInInitFunction) {
+          debug('Found addTestCase, when not in a legacy test suite init function. Ignoring');
+          continue;
+        }
+        let match = line.match(addTestregex);
+        let testCaseName = match[1];
+        let testCaseFunctionName = match[2];
+
+        if (testCaseName !== '' && testCaseFunctionName !== '') {
+          testCaseMap[testCaseFunctionName.toLowerCase()] = testCaseName;
+        } else {
+          debug(' found badly formed addTestCase function call in test suite init function. Ignoring');
+        }
+
+        continue;
+      } else if (line.match(testCaseFunctionNameRegex)) {
+        let functionName = line.match(testCaseFunctionNameRegex)[2];
+        functionName = 'testcase_' + functionName.toLowerCase();
+        if (!functionName) {
+          debug('found badly formed test function name. Ignoring');
+          isIgnore = false;
+          isSolo = false;
+          continue;
+        }
+        let testName = testCaseMap[functionName];
+        if (!testName) {
+          debug('Encountered test function ' + functionName + 'but found no matching AddTestCase invocation');
+          isIgnore = false;
+          isSolo = false;
+          continue;
+        }
+        let testCase = new TestCase(testName, functionName, isSolo, isIgnore, lineNumber);
+        if (isIgnore) {
+          testSuite.hasIgnoredTests = true;
+        }
+        this.currentTestCases = [testCase];
+        this.currentGroup.addTestCase(testCase);
+        if (isSolo) {
+          // debug('>>> ' + aTestCase.name + ' IS SOLO!');
+          this.currentGroup.hasSoloTests = true;
+          testSuite.hasSoloTests = true;
+          testSuite.isSolo = true;
+        }
+        isIgnore = false;
+        isSolo = false;
+        continue;
+      } else if (line.match(assertInvocationRegex)) {
+        if (this.currentTestCases.length === 0) {
+          this.errors.push(`Found assert before test case was declared! ${currentLocation}`);
+        } else {
+          this.currentTestCases[0].addAssertLine(lineNumber);
+        }
+      }
+    }
+
+    return isTestSuite;
+  }
+
 }

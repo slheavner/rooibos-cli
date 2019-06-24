@@ -53,6 +53,7 @@ export class RooibosProcessor {
 
     outputText += '\n' + this.createTestsHeaderText();
     outputText += '\n' + this.runtimeConfig.createTestSuiteLookupFunction();
+    outputText += '\n' + this.runtimeConfig.createIgnoredTestsInfoFunction();
     outputText += '\n' + this.createFileFooterText();
     let mapFileName = path.join(this.config.projectPath, this.config.outputPath, 'rooibosFunctionMap.brs');
     const file = new File(path.resolve(path.dirname(mapFileName)), path.dirname(mapFileName), path.basename(mapFileName), '.brs');

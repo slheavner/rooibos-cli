@@ -17,6 +17,7 @@ export class TestSuite {
     this.tearDownFunctionName = '';
     this.isNodeTest = false;
     this.nodeTestFileName = '';
+    this.isLegacy = false;
   }
 
   public filePath: string;
@@ -38,6 +39,7 @@ export class TestSuite {
   public nodeTestFileName: string;
   public afterEachFunctionName: string;
   public rawParams: string;
+  public isLegacy: boolean;
 
   public asJson(): object {
     return {
@@ -78,6 +80,7 @@ export class TestSuite {
       setupFunctionName: "${this.setupFunctionName || ''}"
       tearDownFunctionName: "${this.tearDownFunctionName || ''}"
       isNodeTest: ${this.isNodeTest}
+      isLegacy: ${this.isLegacy}
       nodeTestFileName: "${this.nodeTestFileName || ''}"
       beforeEachFunctionName: "${this.beforeEachFunctionName || ''}"
       afterEachFunctionName: "${this.afterEachFunctionName || ''}"
