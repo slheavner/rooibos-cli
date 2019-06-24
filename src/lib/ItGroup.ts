@@ -1,7 +1,7 @@
 import { TestCase } from './TestCase';
 
 export class ItGroup {
-  constructor(name: string, isSolo: boolean, isIgnore: boolean, filename: string) {
+  constructor(name: string, isSolo: boolean, isIgnore: boolean, filename: string, isLegacy: boolean = false) {
     this.name = name;
     this.isSolo = isSolo;
     this.hasSoloTests = false;
@@ -11,6 +11,7 @@ export class ItGroup {
     this.testCases = [];
     this.ignoredTestCases = [];
     this.soloTestCases = [];
+    this.isLegacy = isLegacy;
   }
 
   public isIncluded: boolean;
@@ -27,6 +28,7 @@ export class ItGroup {
   public beforeEachFunctionName: string;
   public afterEachFunctionName: string;
   public hasSoloTests: boolean;
+  public isLegacy: boolean;
 
   public asJson(): object {
     return {
@@ -66,6 +68,7 @@ export class ItGroup {
         beforeEachFunctionName: "${this.beforeEachFunctionName || ''}"
         afterEachFunctionName: "${this.afterEachFunctionName || ''}"
         isSolo: ${this.isSolo}
+        isLegacy: ${this.isLegacy}
         isIgnored: ${this.isIgnored}
         hasSoloTests: ${this.hasSoloTests}
         name: "${this.name || ''}"

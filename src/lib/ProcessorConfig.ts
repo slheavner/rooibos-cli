@@ -18,6 +18,7 @@ export interface ProcessorConfig {
   logLevel: ProcessorLogLevel;
   showFailuresOnly: boolean;
   failFast: boolean;
+  legacySupport: boolean;
 }
 
 export function createProcessorConfig(config: any): ProcessorConfig {
@@ -29,6 +30,7 @@ export function createProcessorConfig(config: any): ProcessorConfig {
   config.isRecordingCodeCoverage = config.isRecordingCodeCoverage === true;
   config.showFailuresOnly = config.showFailuresOnly === true;
   config.failFast = config.failFast === true;
+  config.legacySupport = config.legacySupport === true;
   config.outputPath = config.outputPath || 'source';
 
   if (!config.projectPath) {

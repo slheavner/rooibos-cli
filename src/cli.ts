@@ -20,6 +20,7 @@ program
 .option('-o, --outputPath [path]', 'Path to package output directory. This is where generated files, required for execution will be copied to. Relative to projectPath, defaults to source')
 .option('-f, --showFailuresOnly', 'Show results for failed tests, if any. If none fail, then all results are shown')
 .option('-F, --failFast', 'Test execution will stop at the first failure')
+.option('-l, --legacySupport', 'legacy tests are included in the rooibos run, when this flag is set - see the rooibos docs for more info')
 .description(`
   processes a brightscript SceneGraph project and creates json data structures
   which can be used by the rooibos unit testing framework, or vsCode IDE
@@ -45,7 +46,8 @@ program
       sourceFilePattern: options.sourceFilePattern,
       outputPath: options.outputPath,
       showFailuresOnly: options.showFailuresOnly,
-      failFast: options.failFast
+      failFast: options.failFast,
+      legacySupport: options.legacySupport
     };
   }
 

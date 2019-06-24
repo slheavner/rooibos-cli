@@ -1,5 +1,24 @@
 # rooibos-preprocessor CHANGELOG
 
+## 3.0.9 - reintroduces legacy support
+
+### Added
+
+  - legacy unit testing support is reintroduced. Any projects that adhere to the roku unit testing library pre-annotation syntax, will automatically run.
+    @only and @ignore is supported for test suites, and test cases.
+
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+  - crash when any function calls asString on an aa that has mocked functions
+  - race crash as reported here https://github.com/georgejecook/rooibos/issues/53
+
+
 ## 3.0.8 - out of beta - yay!
 
 ### Added
