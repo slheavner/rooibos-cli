@@ -1,5 +1,11 @@
 # rooibos-preprocessor CHANGELOG
 
+## 3.1.0 - add version checking
+
+### Added 
+
+ - checks the version of the rooibosDist.brs, and the rooibos-preprocessor used match
+ 
 ## 3.0.9 - reintroduces legacy support
 
 ### Added
@@ -15,8 +21,7 @@
 
 ### Fixed
 
-  - crash when any function calls asString on an aa that has mocked functions
-  - race crash as reported here https://github.com/georgejecook/rooibos/issues/53
+  - adds ignored test info, so that we can get that back in the log report
 
 
 ## 3.0.8 - out of beta - yay!

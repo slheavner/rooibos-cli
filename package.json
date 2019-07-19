@@ -1,6 +1,6 @@
 {
   "name": "rooibos-preprocessor",
-  "version": "3.0.9",
+  "version": "3.1.0",
   "description": "preprocessor for roku brightscript and scenegraph projects, using rooibos",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
