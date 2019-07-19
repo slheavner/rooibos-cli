@@ -15,8 +15,7 @@
 
 ### Fixed
 
-  - crash when any function calls asString on an aa that has mocked functions
-  - race crash as reported here https://github.com/georgejecook/rooibos/issues/53
+  - adds ignored test info, so that we can get that back in the log report
 
 
 ## 3.0.8 - out of beta - yay!
