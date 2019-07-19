@@ -1,5 +1,11 @@
 # rooibos-preprocessor CHANGELOG
 
+## 3.1.0 - add version checking
+
+### Added 
+
+ - checks the version of the rooibosDist.brs, and the rooibos-preprocessor used match
+ 
 ## 3.0.9 - reintroduces legacy support
 
 ### Added

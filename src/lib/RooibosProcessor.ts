@@ -10,6 +10,7 @@ import { ProcessorConfig } from './ProcessorConfig';
 import { RuntimeConfig } from './RuntimeConfig';
 
 const debug = Debug('RooibosProcessor');
+const pkg = require('../../package.json');
 
 export class RooibosProcessor {
   constructor(config: ProcessorConfig) {
@@ -49,7 +50,10 @@ export class RooibosProcessor {
 
     debug(`Adding function map `);
     outputText += '\n' + functionMap.getFunctionMapText();
+    debug(`Adding runtime config function `);
     outputText += '\n' + this.getRuntimeConfigText();
+    debug(`Adding version function `);
+    outputText += '\n' + this.getVersionText();
 
     outputText += '\n' + this.createTestsHeaderText();
     outputText += '\n' + this.runtimeConfig.createTestSuiteLookupFunction();
@@ -80,7 +84,7 @@ export class RooibosProcessor {
 
     ======
     `);
-      getFeedbackErrors().forEach( (errorText) => debug(`[ERROR] ${errorText}`));
+      getFeedbackErrors().forEach((errorText) => debug(`[ERROR] ${errorText}`));
       debug(`
     ======
     `);
@@ -95,7 +99,7 @@ export class RooibosProcessor {
 
     ======
     `);
-      getFeedbackWarnings().forEach( (errorText) => debug(`[WARN] ${errorText}`));
+      getFeedbackWarnings().forEach((errorText) => debug(`[WARN] ${errorText}`));
       debug(`
     ======
     `);
@@ -134,7 +138,16 @@ export class RooibosProcessor {
         return {
           "failFast": ${this.config.failFast}
           "showOnlyFailures": ${this.config.showFailuresOnly}
+          "rooibosPreprocessorVersion": ${pkg.version}
           }
+    end function
+    `;
+  }
+
+  public getVersionText(): string {
+    return `
+    function RBSFM_getPreprocessorVersion()
+        return "${pkg.version}"
     end function
     `;
   }
