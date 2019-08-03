@@ -1,5 +1,16 @@
 # rooibos-preprocessor CHANGELOG
 
+## 4.0.0 - add version checking
+
+### Added
+
+ - new install command, for installing the framework directly into a project
+
+### Changed
+
+ - the default command is now `-r` `--run`, this is a breaking change, hence the major bounce.
+ - the command is now rooibos-cli, not rooibosC
+
 ## 3.1.0 - add version checking
 
 ### Added 

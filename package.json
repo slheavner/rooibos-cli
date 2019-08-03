@@ -1,7 +1,7 @@
 {
-  "name": "rooibos-preprocessor",
-  "version": "3.1.0",
-  "description": "preprocessor for roku brightscript and scenegraph projects, using rooibos",
+  "name": "rooibos-cli",
+  "version": "4.0.0",
+  "description": "cli for rooibos testing framework, for brightscript and scenegraph apps",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "files": [
@@ -20,6 +20,7 @@
     "glob-all": "^3.1.0",
     "lodash": "latest",
     "replace-ext": "^1.0.0",
+    "request-promise": "^4.2.4",
     "splice-string": "^2.0.0",
     "typescript": "^3.2.2"
   },
@@ -60,7 +61,7 @@
   },
   "preferGlobal": true,
   "bin": {
-    "rooibosC": "dist/cli.js"
+    "rooibos-cli": "dist/cli.js"
   },
   "keywords": [
     "brightscript",
