@@ -18,5 +18,15 @@ rooibos-cli - cli tools for rooibos unit testing framework
 
 # About
 
-This repo contains the source for `rooibosC` preprocessor, which is used by the  - [Rooibos unit testing framework](https://github.com/georgejecook/rooibos). Please go there for more info.
+This repo contains the source for `rooibos-cli` which is used by the  - [Rooibos unit testing framework](https://github.com/georgejecook/rooibos). Please go there for more info.
 
+# RooibosC and rooibosPreprocessor
+
+Please note, this project has been renamed from rooibos-preprocessor, and the command line tool formerly named `rooibosC`, is now called `rooibos-cli`
+
+# Note about releases.
+
+The releases page is deprecated because:
+
+ - I reset the release number when I changed package name
+ - The changelog and npm cover everything that was in there.
