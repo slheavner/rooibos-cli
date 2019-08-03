@@ -14,7 +14,7 @@ program
   .description('Rooibos Preprocessor');
 
 program
-  .command('run <config>')
+  .command('run [config]')
   .alias('r')
   .option('-p, --projectPath [path]', 'Root path of project/build folder (e.g. roku-deploy staging folder)')
   .option('-t, --testsFilePattern [value]', 'Array of globs corresponding to test files to include. Relative to projectPath')
@@ -29,14 +29,14 @@ program
   which can be used by the rooibos unit testing framework, or vsCode IDE
   HAPPY TESTING :)
 `)
-  .action((options) => {
+  .action((config, options) => {
     console.log(`Processing....`);
     console.time('Finished in:');
     let configJson = {};
 
-    if (options.config) {
+    if (config) {
       try {
-        configJson = require(path.resolve(process.cwd(), options.config));
+        configJson = require(path.resolve(process.cwd(), config));
       } catch (e) {
         console.log(e.message);
         process.exit(1);
