@@ -34,13 +34,13 @@ export class InstallFrameworkCommand {
 
   public async getLatestVersionNumber(): Promise<string> {
     let options = {
-      uri: 'https://api.github.com/repos/georgejecook/rooibos/releases/latest',
+      uri: 'https://raw.githubusercontent.com/georgejecook/rooibos/master/docs/version.txt',
       headers: {
         'User-Agent': 'Request-Promise'
       },
       json: true // Automatically parses the JSON string in the response
     };
     const result = await request.get(options);
-    return result.tag_name;
+    return result;
   }
 }
