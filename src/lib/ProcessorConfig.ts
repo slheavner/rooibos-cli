@@ -19,6 +19,7 @@ export interface ProcessorConfig {
   showFailuresOnly: boolean;
   failFast: boolean;
   legacySupport: boolean;
+  printTestTimes: boolean;
 }
 
 export function createProcessorConfig(config: any): ProcessorConfig {
@@ -31,6 +32,7 @@ export function createProcessorConfig(config: any): ProcessorConfig {
   config.showFailuresOnly = config.showFailuresOnly === true;
   config.failFast = config.failFast === true;
   config.legacySupport = config.legacySupport === true;
+  config.printTestTimes = config.printTestTimes === true;
   config.outputPath = config.outputPath || 'source';
 
   if (!config.projectPath) {

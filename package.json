@@ -1,6 +1,6 @@
 {
   "name": "rooibos-cli",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "cli for rooibos testing framework, for brightscript and scenegraph apps",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -23,7 +23,7 @@
     "request": "^2.88.0",
     "request-promise": "^4.2.4",
     "splice-string": "^2.0.0",
-    "typescript": "^3.2.2"
+    "typescript": "3.7.4"
   },
   "devDependencies": {
     "@types/chai": "^4.1.7",
@@ -33,7 +33,7 @@
     "@types/glob": "^7.1.1",
     "@types/lodash": "^4.14.119",
     "@types/mocha": "^5.2.5",
-    "@types/node": "^10.12.15",
+    "@types/node": "^10.17.13",
     "@types/replace-ext": "0.0.27",
     "babel-core": "^6.26.3",
     "babel-preset-env": "^1.6.1",
@@ -44,7 +44,7 @@
     "dir-compare": "^1.4.0",
     "mocha": "^5.1.1",
     "nyc": "^13.1.0",
-    "ts-node": "^7.0.1",
+    "ts-node": "8.0.2",
     "tslint": "^5.11.0",
     "tslint-eslint-rules": "^5.4.0",
     "tslint-origin-ordered-imports-rule": "^1.1.2"
