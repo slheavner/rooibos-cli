@@ -20,6 +20,7 @@ export interface ProcessorConfig {
   failFast: boolean;
   legacySupport: boolean;
   printTestTimes: boolean;
+  port: number;
 }
 
 export function createProcessorConfig(config: any): ProcessorConfig {
@@ -34,6 +35,7 @@ export function createProcessorConfig(config: any): ProcessorConfig {
   config.legacySupport = config.legacySupport === true;
   config.printTestTimes = config.printTestTimes === true;
   config.outputPath = config.outputPath || 'source';
+  config.port = config.port || null;
 
   if (!config.projectPath) {
     throw new Error('Config does not contain projectPath property' + docsLink);
