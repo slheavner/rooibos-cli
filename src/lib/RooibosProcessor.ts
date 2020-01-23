@@ -139,6 +139,7 @@ export class RooibosProcessor {
           "failFast": ${this.config.failFast}
           "showOnlyFailures": ${this.config.showFailuresOnly}
           "rooibosPreprocessorVersion": ${pkg.version}
+          "port": ${this.config.port || "Invalid"}
           }
     end function
     `;

@@ -25,6 +25,7 @@ program
   .option('-F, --failFast', 'Test execution will stop at the first failure')
   .option('-l, --legacySupport', 'legacy tests are included in the rooibos run, when this flag is set - see the rooibos docs for more info')
   .option('-t, --printTestTimes', 'prints test times in output')
+  .option('-n, --port', 'Send test results down socket on port')
   .description(`
   processes a brightscript SceneGraph project and creates json data structures
   which can be used by the rooibos unit testing framework, or vsCode IDE
@@ -52,7 +53,8 @@ program
         showFailuresOnly: options.showFailuresOnly,
         failFast: options.failFast,
         legacySupport: options.legacySupport,
-        printTestTimes: options.printTestTimes
+        printTestTimes: options.printTestTimes,
+        port: options.port
       };
     }
 
