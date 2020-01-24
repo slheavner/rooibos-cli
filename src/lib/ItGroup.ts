@@ -81,7 +81,7 @@ export class ItGroup {
 
   public addTestCase(testCase: TestCase) {
     if (this.testCaseNames.has(testCase.name)) {
-      feedbackError(this.file, `testCase with name ${testCase.name} already declared in group ${this.name}`);
+      feedbackError(this.file, `\ntestCase with name '${testCase.name}' already declared in group '${this.name}'`);
     }
     this.testCaseNames.add(testCase.name);
     if (testCase.isSolo) {
