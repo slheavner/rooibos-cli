@@ -106,7 +106,7 @@ export class TestSuiteBuilder {
 
         if (name) {
           if (this.testSuiteNames.has(name)) {
-            feedbackError(file, `Test suite with name ${name} has already been defined!`);
+            feedbackError(file, `\nTest suite with name '${name}' has already been defined!`);
           }
           testSuite.name = name;
 
@@ -146,7 +146,7 @@ export class TestSuiteBuilder {
         }
 
         if (itGroupNames.has(name)) {
-          feedbackError(file, `It group with name ${name} has already been defined in this test suite`);
+          feedbackError(file, `\nIt group with name '${name}' has already been defined in this test suite`);
         }
         itGroupNames.add(name);
 
