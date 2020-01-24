@@ -35,6 +35,7 @@ export class TestSuiteBuilder {
   private functionNameRegex: RegExp;
   private functionSignatureRegex: RegExp;
   private assertInvocationRegex: RegExp;
+  private expectInvocationRegex: RegExp;
 
   private hasCurrentTestCase: boolean;
   private testCaseParams: object[];
@@ -106,7 +107,7 @@ export class TestSuiteBuilder {
 
         if (name) {
           if (this.testSuiteNames.has(name)) {
-            feedbackError(file, `Test suite with name ${name} has already been defined!`);
+            feedbackError(file, `\nTest suite with name '${name}' has already been defined!`);
           }
           testSuite.name = name;
 
@@ -146,7 +147,7 @@ export class TestSuiteBuilder {
         }
 
         if (itGroupNames.has(name)) {
-          feedbackError(file, `It group with name ${name} has already been defined in this test suite`);
+          feedbackError(file, `\nIt group with name '${name}' has already been defined in this test suite`);
         }
         itGroupNames.add(name);
 
@@ -239,6 +240,14 @@ export class TestSuiteBuilder {
         if (!this.hasCurrentTestCase) {
           debug(`Found assert before test case was declared! ` + currentLocation);
           this.warnings.push(`Found assert before test case was declared! ` + currentLocation);
+        } else {
+          this.currentTestCases.forEach((tc) => tc.addAssertLine(lineNumber));
+        }
+        continue;
+      } else if (line.match(this.expectInvocationRegex)) {
+        if (!this.hasCurrentTestCase) {
+          debug(`Found mock expectation before test case was declared! ` + currentLocation);
+          this.warnings.push(`Found mock expectation before test case was declared! ` + currentLocation);
         } else {
           this.currentTestCases.forEach((tc) => tc.addAssertLine(lineNumber));
         }
@@ -479,7 +488,7 @@ export class TestSuiteBuilder {
 
     let testSuiteFunctionNameRegex = new RegExp('^\\s*(function|sub)\\s*testSuite_([0-9a-z\\_]*)\\s*\\(', 'i');
     let testCaseFunctionNameRegex = new RegExp('^\\s*(function|sub)\\s*testCase_([0-9a-z\\_]*)\\s*\\(', 'i');
-    let assertInvocationRegex = new RegExp('^.*(m.fail|m.Fail|m.assert|m.Assert)(.*)', 'i');
+    let assertInvocationRegex = new RegExp('^.*(m\\.fail|m\\.assert)(.*)', 'i');
     let functionEndRegex = new RegExp('^\\s*(end sub|end function)', 'i');
 
     let testSuiteNameRegex = new RegExp('^\\s*this\\.name\\s*=\\s*"([0-9a-z_]*)"', 'i');
