@@ -139,7 +139,9 @@ export class RooibosProcessor {
     function RBSFM_getRuntimeConfig()
         return {
           "failFast": ${this.config.failFast}
+          "logLevel": ${this.config.logLevel}
           "showOnlyFailures": ${this.config.showFailuresOnly}
+          "printLcov": ${this.config.printLcov === true}
           "rooibosPreprocessorVersion": ${pkg.version}
           "port": ${this.config.port || 'Invalid'}
           }
