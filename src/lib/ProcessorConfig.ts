@@ -20,6 +20,7 @@ export interface ProcessorConfig {
   failFast: boolean;
   legacySupport: boolean;
   printTestTimes: boolean;
+  printLcov?: boolean;
   port: number;
 }
 
@@ -32,9 +33,11 @@ export function createProcessorConfig(config: any): ProcessorConfig {
   config.isRecordingCodeCoverage = config.isRecordingCodeCoverage === true;
   config.showFailuresOnly = config.showFailuresOnly === true;
   config.failFast = config.failFast === true;
+  config.printLcov = config.printLcov === true;
   config.legacySupport = config.legacySupport === true;
   config.printTestTimes = config.printTestTimes === true;
   config.outputPath = config.outputPath || 'source';
+  config.logLevel = config.logLevel || ProcessorLogLevel.info;
   config.port = config.port || null;
 
   if (!config.projectPath) {

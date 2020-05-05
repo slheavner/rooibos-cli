@@ -26,6 +26,7 @@ program
   .option('-l, --legacySupport', 'legacy tests are included in the rooibos run, when this flag is set - see the rooibos docs for more info')
   .option('-t, --printTestTimes', 'prints test times in output')
   .option('-n, --port', 'Send test results down socket on port')
+  .option('-l, --printLcov', 'True, if lcov results will be printed to log')
   .description(`
   processes a brightscript SceneGraph project and creates json data structures
   which can be used by the rooibos unit testing framework, or vsCode IDE
@@ -54,7 +55,8 @@ program
         failFast: options.failFast,
         legacySupport: options.legacySupport,
         printTestTimes: options.printTestTimes,
-        port: options.port
+        port: options.port,
+        printLcov: options.printLcov
       };
     }
 
