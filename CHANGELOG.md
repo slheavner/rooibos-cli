@@ -1,3 +1,9 @@
+#### 1.3.0 (2020-05-05)
+
+##### New Features
+
+* **coverage:**  adds lcov report support (200098b3)
+
 #### 1.2.0 (2020-01-24)
 
 ##### New Features
