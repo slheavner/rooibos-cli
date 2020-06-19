@@ -142,7 +142,7 @@ export class RooibosProcessor {
           "logLevel": ${this.config.logLevel}
           "showOnlyFailures": ${this.config.showFailuresOnly}
           "printLcov": ${this.config.printLcov === true}
-          "rooibosPreprocessorVersion": ${pkg.version}
+          "rooibosPreprocessorVersion": "${pkg.version}"
           "port": ${this.config.port || 'Invalid'}
           }
     end function
