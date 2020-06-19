@@ -1,3 +1,9 @@
+#### 1.3.1 (2020-06-19)
+
+##### Bug Fixes
+
+* **core:**  Fixes error that prevents correct version number parsing in generated code (2271bd6d)
+
 #### 1.3.0 (2020-05-05)
 
 ##### New Features
