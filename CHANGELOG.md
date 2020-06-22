@@ -1,3 +1,9 @@
+#### 1.4.0 (2020-06-22)
+
+##### New Features
+
+* **core:**  Adds support for bs files: note - sourcemapping is not currenlty supported, so line numbers will only appear correctly in an IDE that supports sourcemaps. I'll add a flag to map the numbers automatically in future, for non-IDE builds (db876399)
+
 #### 1.3.1 (2020-06-19)
 
 ##### Bug Fixes
