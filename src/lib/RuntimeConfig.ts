@@ -47,7 +47,7 @@ export class RuntimeConfig {
     for (const filePath of files) {
       debug(`processing file: ${filePath}`);
       const extension = path.extname(filePath).toLowerCase();
-      if (extension === '.brs') {
+      if (extension === '.brs' || extension === '.bs') {
         const projectPath = path.dirname(filePath);
         const fullPath = path.join(targetPath, projectPath);
         const filename = path.basename(filePath);

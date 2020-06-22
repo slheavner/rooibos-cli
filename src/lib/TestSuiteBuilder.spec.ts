@@ -7,6 +7,7 @@ import { getFeedbackErrors, resetFeedback } from './Feedback';
 import { Tag } from './Tag';
 import { TestSuiteBuilder } from './TestSuiteBuilder';
 import { makeFile } from './TestUtils';
+import { createProcessorConfig, RooibosProcessor } from '..';
 
 const chaiSubset = require('chai-subset');
 
@@ -28,18 +29,18 @@ function copyFiles(alternatePath = null) {
   }
 }
 
-describe('TestSuiteBuilder tests ', function() {
+describe('TestSuiteBuilder tests ', function () {
   beforeEach(() => {
     builder = new TestSuiteBuilder(50, false);
   });
 
-  describe('Initialization', function() {
-    it('correctly sets source paths and config', function() {
+  describe('Initialization', function () {
+    it('correctly sets source paths and config', function () {
       expect(builder.maxLinesWithoutSuiteDirective).to.equal(50);
     });
   });
 
-  describe('getFunctionFromLine', function() {
+  describe('getFunctionFromLine', function () {
     it('checks non function lines', () => {
       expect(builder.getFunctionFromLine('')).to.be.null;
       expect(builder.getFunctionFromLine('    ')).to.be.null;
@@ -58,7 +59,7 @@ describe('TestSuiteBuilder tests ', function() {
     });
   });
 
-  describe('getTagText', function() {
+  describe('getTagText', function () {
     it('no text/not a tag', () => {
       expect(builder.getTagText(`@TestSuite`, Tag.TEST_SUITE)).to.be.empty;
       expect(builder.getTagText(`NOT`, Tag.TEST_SUITE)).to.be.empty;
@@ -71,7 +72,7 @@ describe('TestSuiteBuilder tests ', function() {
     });
   });
 
-  describe('processFile', function() {
+  describe('processFile', function () {
     beforeEach(() => {
       clearFiles();
       copyFiles();
@@ -157,7 +158,7 @@ describe('TestSuiteBuilder tests ', function() {
       expect(testSuite.itGroups[0].testCases[0].rawParams[1].type).to.equal('http://101.rooibos.com');
     });
 
-    describe('legacy support', function() {
+    describe('legacy support', function () {
       beforeEach(() => {
         builder = new TestSuiteBuilder(50, true);
       });
@@ -263,7 +264,7 @@ describe('TestSuiteBuilder tests ', function() {
 
     });
 
-    describe('duplicates', function() {
+    describe('duplicates', function () {
       beforeEach(() => {
         clearFiles();
         copyFiles('src/test/stubProjectDuplicateTestCases');
@@ -302,5 +303,55 @@ describe('TestSuiteBuilder tests ', function() {
 
     });
 
+  });
+  describe('isTag', function () {
+    beforeEach(() => {
+      builder = new TestSuiteBuilder(50, false);
+    });
+    it('identifies only tag', function () {
+      expect(builder.isTag(`'@Only`, Tag.SOLO)).to.be.true;
+      expect(builder.isTag(`'@only`, Tag.SOLO)).to.be.true;
+      expect(builder.isTag(`   '@only`, Tag.SOLO)).to.be.true;
+    });
+  });
+  describe('getTagText with spaces', function () {
+    beforeEach(() => {
+      builder = new TestSuiteBuilder(50, false);
+    });
+    it('identifies only tag', function () {
+      expect(builder.getTagText(`'@Only some values`, Tag.SOLO)).to.equal('some values');
+      expect(builder.getTagText(`'@only some values`, Tag.SOLO)).to.equal('some values');
+      expect(builder.getTagText(`   '@Only some values`, Tag.SOLO)).to.equal('some values');
+      expect(builder.getTagText(`   '@only some values`, Tag.SOLO)).to.equal('some values');
+    });
+  });
+  describe('test local projects:  - skip these in ci', function () {
+    beforeEach(() => {
+      builder = new TestSuiteBuilder(50, false);
+    });
+    it('smc', async function() {
+      let testFiles = [];
+      if (process.env.TEST_FILES_PATTERN) {
+        console.log('using overridden test files');
+        testFiles = JSON.parse(process.env.TEST_FILES_PATTERN);
+      } else {
+        testFiles = [
+          '**/tests/**/*.bs',
+          '**/tests/**/*.brs',
+          '!**/rooibosDist.brs',
+          '!**/rooibosFunctionMap.brs',
+          '!**/TestsScene.brs'
+        ];
+      }
+
+      let config = createProcessorConfig({
+        projectPath: '/home/george/hope/smc/pot-smithsonian-channel-roku-xm/build',
+        showFailuresOnly: true,
+        testsFilePattern: testFiles
+      });
+      let processor = new RooibosProcessor(config);
+      await processor.processFiles();
+      console.log('done');
+    });
   });
 });

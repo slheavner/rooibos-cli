@@ -431,11 +431,13 @@ export class TestSuiteBuilder {
   }
 
   public isTag(text: string, tag: Tag): boolean {
-    return text.substring(0, tag.length).toUpperCase() === tag.toUpperCase();
+    return new RegExp(`^\\s*${tag}`, 'i').test(text);
   }
 
   public getTagText(text: string, tag: Tag): string {
-    return text.substr(tag.length).trim();
+    const regexp = new RegExp(`^\\s*${tag}\\s*(.*)`, 'i');
+    const matches = text.match(regexp);
+    return matches && matches.length === 2 ? matches[1] : '';
   }
 
   public reset() {

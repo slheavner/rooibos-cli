@@ -48,6 +48,8 @@ export default class File {
     switch (this.extension.toLowerCase()) {
       case '.brs':
         return this.associatedFile ? FileType.CodeBehind : FileType.Brs;
+      case '.bs':
+        return this.associatedFile ? FileType.CodeBehind : FileType.Bs;
       case '.xml':
         return this.associatedFile ? FileType.ViewXml : FileType.Xml;
       default:
