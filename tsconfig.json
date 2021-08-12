@@ -1,11 +1,12 @@
 {
-	"compilerOptions": {
-		"outDir": "./dist",
-		"allowJs": true,
-		"target": "es5",
-		"lib": ["esnext"]
-	},
-	"include": [
-		"./src/**/*"
-	]
+  "compilerOptions": {
+    "outDir": "./dist",
+    "allowJs": true,
+    "lib": ["esnext"],
+    "strict": false,
+    "module": "commonjs",
+    "target": "es6",
+    "skipLibCheck": true
+  },
+  "include": ["./src/**/*"]
 }

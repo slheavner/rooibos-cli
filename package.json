@@ -22,8 +22,7 @@
     "replace-ext": "^1.0.0",
     "request": "^2.88.0",
     "request-promise": "^4.2.4",
-    "splice-string": "^2.0.0",
-    "typescript": "3.7.4"
+    "splice-string": "^2.0.0"
   },
   "devDependencies": {
     "@types/chai": "^4.1.7",
@@ -31,9 +30,10 @@
     "@types/debug": "0.0.31",
     "@types/fs-extra": "^5.0.4",
     "@types/glob": "^7.1.1",
+    "@types/jest": "^27.0.0",
     "@types/lodash": "^4.14.119",
     "@types/mocha": "^5.2.5",
-    "@types/node": "^10.17.13",
+    "@types/node": "^10.17.60",
     "@types/replace-ext": "0.0.27",
     "babel-core": "^6.26.3",
     "babel-preset-env": "^1.6.1",
@@ -47,7 +47,8 @@
     "ts-node": "8.0.2",
     "tslint": "^5.11.0",
     "tslint-eslint-rules": "^5.4.0",
-    "tslint-origin-ordered-imports-rule": "^1.1.2"
+    "tslint-origin-ordered-imports-rule": "^1.1.2",
+    "typescript": "^3.9.9"
   },
   "scripts": {
     "clean": "rm -rf ./dist && mkdir dist",
