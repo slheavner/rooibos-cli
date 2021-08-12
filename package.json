@@ -54,6 +54,8 @@
     "clean": "rm -rf ./dist && mkdir dist",
     "compile": "npm run clean && tsc -p .",
     "prepublishOnly": "npm run build",
+    "prepare": "npm run build",
+    "prepack": "npm run build",
     "tslint": "tslint ./src/**/*.ts",
     "build": "npm run compile && cp ./src/lib/*.brs dist/lib && cp ./src/lib/*.xml dist/lib",
     "test": "npm run build && nyc mocha src/**/*.spec.ts --full-trace --bail",
