@@ -691,13 +691,13 @@ export class TestSuiteBuilder {
       } else {
         feedbackError(
           file,
-          `illegal params found at ${currentLocation}. Not adding test - params were : ${line}`
+          `illegal params found. Not adding test - params were : ${line}`
         );
       }
     } catch (e) {
       feedbackError(
         file,
-        `illegal params found at ${currentLocation}. Not adding test - params were : ${line}`
+        `illegal params found. Not adding test - params were : ${line}`
       );
     }
   }
