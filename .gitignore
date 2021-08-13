@@ -3,7 +3,7 @@ build
 ###BrightScript specific
 dist/apps
 out/
-dist/
+
 
 ### Eclipse project files
 
